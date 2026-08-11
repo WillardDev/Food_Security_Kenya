@@ -1,27 +1,68 @@
-# Food Security in Kenya — A Data Analysis (2016–2025)
+# Food Security in Kenya — A Data Story
 
-Welcome to the Food Security in Kenya End-to-End Analysis Project. This project uses data analysis and visualization to examine Kenya's food security crisis — tracking national trends, identifying high-risk counties, and mapping risk patterns to inform policy and intervention strategies.
+Welcome to the Food Security in Kenya End-to-End Analysis Project. This project uses data analysis and interactive visualization to examine Kenya's food security crisis — tracking national trends, identifying high-risk counties, and mapping risk patterns to inform policy and intervention strategies.
+
+It pairs two complementary artifacts:
+
+- **`app.py`** — an interactive **Streamlit dashboard** that tells the full data story in five tabs.
+- **`notebooks/Food_Security.ipynb`** — a reproducible **Jupyter notebook** that mirrors the exact same visualizations and order as the app.
 
 ## Table of Contents
-- [ Project Objectives](#project-objectives)
-- [ Project Overview](#project-overview)
-- [ Key Findings](#key-findings)
-- [ Tools & Technologies](#tools--technologies)
-- [ Visualizations](#visualizations)
-- [ Dataset](#dataset)
-- [ Future Enhancements](#future-enhancements)
+- [Project Objectives](#project-objectives)
+- [Repository Structure](#repository-structure)
+- [Project Overview](#project-overview)
+- [Key Findings](#key-findings)
+- [Tools & Technologies](#tools--technologies)
+- [Visualizations](#visualizations)
+- [Dataset](#dataset)
+- [Running the Dashboard](#running-the-dashboard)
+- [Future Enhancements](#future-enhancements)
 
 ---
 
-##  Project Objectives
+## Project Objectives
 
-The primary goals of this project were to:
-
-- Analyze Kenya's national food security trends using FAOSTAT (Food and Agriculture Organization Corporate Statistical Database) indicators from 2016–2025.
+- Analyze Kenya's national food security trends using FAOSTAT (Food and Agriculture Organization Corporate Statistical Database) indicators.
 - Map county-level food security risk using the World Bank Joint Monitoring Report (JMR) data.
 - Identify hotspot regions most vulnerable to food insecurity.
 - Visualize trends in food availability, access, utilization, and stability.
-- Provide actionable insights for policymakers, NGOs, and aid organizations.
+- Provide actionable insights for policymakers, NGOs, and aid organizations — through both an interactive dashboard and a reproducible notebook.
+
+---
+
+## Repository Structure
+
+```
+food_security/
+├── app.py                     # Streamlit entry point (thin orchestration layer)
+├── dashboard/                 # Modular Python package imported by app.py
+│   ├── __init__.py
+│   ├── config.py              # Colors, thresholds, indicator metadata, CSS
+│   ├── data.py                # Data loading, cleaning, and building
+│   ├── insights.py            # Status logic and narrative insight text
+│   ├── plots.py               # All chart-building functions (one per chart)
+│   └── tabs.py                # Tab renderers (Executive, Availability, Access,
+│                              #   Child Nutrition, County Risk Map)
+├── notebooks/
+│   └── Food_Security.ipynb    # Full analysis, mirroring the app's charts
+├── data/
+│   ├── ken_faostat_*.csv      # National-level FAOSTAT data
+│   ├── world_bank_jmr/        # County/sub-county JMR risk data (zip)
+│   └── shapefiles/            # Kenya county boundaries (GeoJSON)
+├── requirements.txt           # Pinned Python dependencies
+└── README.md
+```
+
+**Why modular?** Each major concern lives in its own file inside `dashboard/`, so
+`app.py` stays short and each chart / insight is easy to find, test, and extend:
+
+| Module | Responsibility |
+|---|---|
+| `config.py` | Single source of truth for colors, thresholds, and labels |
+| `data.py` | Cached loading + cleaning + building of `analysis_df` and county data |
+| `insights.py` | Threshold → status color/label mapping and narrative insights |
+| `plots.py` | Pure functions that return a Plotly figure (one per chart) |
+| `tabs.py` | Composes charts + insights into the five dashboard tabs |
 
 ---
 
@@ -71,20 +112,18 @@ Think of food security as a four-legged stool: **Availability, Access, Utilizati
 ### In Plain English
 
 - **Dietary energy adequacy at ~93%** — Kenya's food supply meets about 93% of what people need, leaving a 7% gap.
-- **Undernourishment at ~30–35%** — roughly 1 in 3 Kenyans doesn't get enough calories regularly.
+- **Undernourishment at ~30+%** — roughly 1 in 3 Kenyans doesn't get enough calories regularly.
 - **Food insecurity at ~70%** — 7 out of 10 Kenyans experience some level of food anxiety or meal-skipping.
 - **~43 million Kenyans cannot afford a healthy diet** — more than half the population.
 - **Stunting at ~18%** — nearly 1 in 5 children suffer permanent growth impairment from chronic malnutrition.
 
 ---
 
-##  Problem Statement
+## Problem Statement
 
 Kenya faces persistent food insecurity due to climate variability (droughts, floods), economic shocks, displacement, and regional inequalities — particularly in arid and semi-arid lands (ASALs). This project applies data analysis to quantify and visualize these challenges.
 
 ### 1. Exploratory Data Analysis (EDA)
-
-EDA is the process of summarizing and visually exploring a dataset to understand its structure, patterns, and anomalies before formal modeling.
 
 **Data Cleaning:**
 - Removed duplicate records and standardized column names across FAOSTAT and JMR datasets.
@@ -92,7 +131,7 @@ EDA is the process of summarizing and visually exploring a dataset to understand
 - Merged JMR risk data with county boundary geometries for spatial analysis.
 
 **Key Metrics Explored:**
-- Yearly national food security indicator trends (2016–2025).
+- Yearly national food security indicator trends.
 - County-level food security risk distribution.
 - Cost and affordability of a healthy diet across regions.
 - Food supply quantity and population trends.
@@ -103,18 +142,17 @@ EDA is the process of summarizing and visually exploring a dataset to understand
 - How have national food indicators changed over time?
 - Is healthy diet affordability improving or worsening?
 - Which regions require the most urgent intervention?
-- What is the relationship between climate events and food insecurity spikes?
+- What is the relationship between economic growth (GDP) and food insecurity?
 
 ---
 
 ## Key Findings
 
-*(To be completed after analysis — placeholder examples below)*
-
-- X of 47 counties classified as high-risk in the most recent JMR report.
-- [Specific indicator] has worsened by X% since 2016.
-- Cost of a healthy diet exceeds the daily income of X% of households in ASAL counties.
-- [Region] shows the strongest correlation between drought events and food insecurity spikes.
+- The number of undernourished Kenyans has grown from ~10 million (2002) to ~20 million (2025), driven by population growth outpacing food system improvements.
+- Food insecurity (moderate or severe) affects the majority of Kenyans and has worsened significantly since 2016.
+- Despite GDP per capita nearly doubling over two decades, food insecurity did not fall — **economic growth alone does not solve food insecurity**; income inequality and affordability gaps persist.
+- Millions of Kenyans cannot afford a healthy diet, explaining why child stunting remains high despite adequate calorie supply ("hidden hunger").
+- A subset of Kenya's 47 counties are at critical risk across multiple JMR indicators (drought, food prices, exchange rates, conflict) and should be prioritized for intervention.
 
 ---
 
@@ -125,24 +163,42 @@ EDA is the process of summarizing and visually exploring a dataset to understand
 | Python | Data collection, cleaning, analysis |
 | Pandas | DataFrame manipulation and transformation |
 | GeoPandas | Spatial data handling and county boundary joins |
-| Matplotlib | Static visualizations and charts |
+| Matplotlib | Static visualizations and charts (notebook) |
 | Seaborn | Statistical visualizations and heatmaps |
-| Plotly | Interactive charts and dashboards |
-| Scikit-learn | Statistical modeling and correlation analysis |
+| Plotly | Interactive charts and dashboards (app) |
+| Streamlit | Interactive web dashboard |
 | Jupyter Notebook | Documentation and reproducible analysis |
 
 ---
 
 ## Visualizations
 
-Visualizations were developed using GeoPandas, Matplotlib, Seaborn, and Plotly:
+Both the app and the notebook present the same charts in the same order:
 
-- **County Risk Choropleth Map** — Color-coded map showing food security risk by county.
-- **National Trend Lines** — Time-series plots of food security indicators over 2016–2025.
-- **Diet Affordability Bar Charts** — Regional comparison of healthy diet costs.
-- **Food Supply vs. Population** — Dual-axis analysis of supply adequacy.
-- **Correlation Heatmap** — Relationships between food security indicators.
-- **Risk Distribution Histogram** — Spread of JMR risk scores across counties.
+### Tab 1 — Executive Summary
+- **Key Food Security Indicators Over Time** — line chart combining undernourishment, food insecurity, and energy adequacy
+- **GDP per Capita vs Food Insecurity** — scatter plot showing the paradox of growth without food security
+
+### Tab 2 — Availability
+- **Dietary Energy Supply Adequacy** — line chart vs 100% target, 95% warning, 90% critical lines
+- **Food Supply Breakdown** — calories, protein, and fat per person per day (line charts with thresholds)
+
+### Tab 3 — Access & Affordability
+- **Prevalence of Undernourishment** — line chart vs 15% / 25% WHO thresholds
+- **Food Insecurity Severity** — moderate/severe vs severe line chart
+- **The Affordability Crisis** — cost of healthy diet, % cannot afford, people unable (all line charts, since they are trends)
+
+### Tab 4 — Child Nutrition
+- **Child Stunting and Wasting** — two-panel line chart with WHO thresholds
+- **GDP per Capita** — line chart providing economic context
+
+### Tab 5 — County Risk Map
+- **County Risk Choropleth Maps** — overall alert level + critical alert count
+- **County Risk Ranking** — top 15 highest-risk counties (stacked bar)
+- **Top 10 Counties** — critical vs heightened alerts (grouped bar)
+- **County × Indicator Heatmap** — alert level per indicator per county
+
+Every trend chart uses a consistent color system: **green** = acceptable, **yellow** = warning, **red** = critical. Each chart is followed by a narrative insight box explaining what the data means.
 
 ---
 
@@ -165,13 +221,36 @@ All datasets are stored in the `data/` directory:
 
 ---
 
+## Running the Dashboard
+
+1. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Launch the Streamlit app from the project root:
+
+   ```bash
+   streamlit run app.py
+   ```
+
+3. (Optional) Re-run the notebook, which mirrors the same analysis:
+
+   ```bash
+   jupyter notebook notebooks/Food_Security.ipynb
+   ```
+
+> **Note on data paths:** The notebook lives in `notebooks/` and references its data via
+> `../data`, so both the app and the notebook resolve the same datasets.
+
+---
+
 ## Future Enhancements
 
-- Build an interactive web dashboard with Plotly Dash or Streamlit.
-- Deploy a conversational AI agent to answer questions about food security in Kenya.
+- Deploy the Streamlit dashboard to the cloud (Streamlit Community Cloud / Hugging Face Spaces).
+- Add a conversational AI agent to answer questions about food security in Kenya.
 - Integrate real-time climate data (rainfall, NDVI) for predictive modeling.
 - Automate daily/weekly data pipeline updates.
 - Add county-level time-series forecasting for risk prediction.
 - Partner with NGOs for data validation and ground-truthing.
-
----
