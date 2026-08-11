@@ -36,6 +36,48 @@ Food Security exists when all people, at all times, have physical, social, and e
 - **Utilization:** Is the food nutritious and safely prepared?
 - **Stability:** Is access to food consistent over time, or disrupted by shocks?
 
+## Food Security Indicators Explained
+
+Think of food security as a four-legged stool: **Availability, Access, Utilization, and Stability**. This project tracks each through concrete metrics:
+
+### Availability (Is there enough food?)
+
+| Indicator | What it means | Good value |
+|---|---|---|
+| **Dietary Energy Supply Adequacy %** | How much of the population's daily calorie needs are met by domestic food supply | Higher is better (~100%) |
+| **Food Supply (kcal/person/day)** | Average calories available per person per day | ~2,100–2,400 is typical; Kenya: ~2,100–2,200 |
+| **Protein Supply (g/person/day)** | Average protein available per person per day | ~50–60g is adequate |
+| **Fat Supply (g/person/day)** | Average fat available per person per day | ~40–60g is adequate |
+
+### Access (Can people afford food?)
+
+| Indicator | What it means | Good value |
+|---|---|---|
+| **Prevalence of Undernourishment %** | % of population consistently unable to meet calorie needs | Lower is better |
+| **Number of People Undernourished (millions)** | Total people who are undernourished | Lower is better |
+| **Moderate or Severe Food Insecurity %** | % of population experiencing anxiety about food or forced to skip meals | Lower is better |
+| **Severe Food Insecurity %** | % of population who went entire days without eating | Lower is better |
+| **Healthy Diet Cost (Int$/day)** | Cost of a nutritious diet per person per day in international dollars | Lower is better |
+| **Prevalence of Unaffordability %** | % of population who cannot afford a healthy diet | Lower is better |
+| **GDP per Capita (PPP)** | Economic output per person, adjusted for local prices — a proxy for purchasing power | Higher is better |
+
+### Utilization (Is the food nutritious and safely used?)
+
+| Indicator | What it means | Good value |
+|---|---|---|
+| **Under-5 Stunting %** | % of children under 5 too short for age (chronic malnutrition) | Lower is better; Kenya: ~18–19% |
+| **Under-5 Wasting %** | % of children under 5 dangerously thin (acute malnutrition) | Lower is better; below 5% is good |
+
+### In Plain English
+
+- **Dietary energy adequacy at ~93%** — Kenya's food supply meets about 93% of what people need, leaving a 7% gap.
+- **Undernourishment at ~30–35%** — roughly 1 in 3 Kenyans doesn't get enough calories regularly.
+- **Food insecurity at ~70%** — 7 out of 10 Kenyans experience some level of food anxiety or meal-skipping.
+- **~43 million Kenyans cannot afford a healthy diet** — more than half the population.
+- **Stunting at ~18%** — nearly 1 in 5 children suffer permanent growth impairment from chronic malnutrition.
+
+---
+
 ##  Problem Statement
 
 Kenya faces persistent food insecurity due to climate variability (droughts, floods), economic shocks, displacement, and regional inequalities — particularly in arid and semi-arid lands (ASALs). This project applies data analysis to quantify and visualize these challenges.
