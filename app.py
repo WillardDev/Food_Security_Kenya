@@ -444,11 +444,13 @@ with tab2:
     data["Color"] = data["dietary_energy_adequacy_pct"].apply(lambda v: status_color(v, "dietary_energy_adequacy_pct"))
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(
+    fig.add_trace(go.Scatter(
         x=data["Year"], y=data["dietary_energy_adequacy_pct"],
-        marker_color=data["Color"],
+        mode="lines+markers",
+        line=dict(color=NEUTRAL, width=2.5),
+        marker=dict(color=data["Color"], size=8),
         text=data["dietary_energy_adequacy_pct"].round(1),
-        textposition="outside",
+        textposition="top center",
         textfont_color="white",
         hovertemplate="<b>Year %{x}</b><br>Energy Adequacy: %{y:.1f}%<extra></extra>",
     ))
@@ -532,11 +534,13 @@ with tab3:
     data["Color"] = data["undernourishment_pct"].apply(lambda v: status_color(v, "undernourishment_pct"))
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(
+    fig.add_trace(go.Scatter(
         x=data["Year"], y=data["undernourishment_pct"],
-        marker_color=data["Color"],
+        mode="lines+markers",
+        line=dict(color=DANGER, width=2.5),
+        marker=dict(color=data["Color"], size=8),
         text=data["undernourishment_pct"].round(1),
-        textposition="outside",
+        textposition="top center",
         textfont_color="white",
         hovertemplate="<b>Year %{x}</b><br>Undernourishment: %{y:.1f}%<extra></extra>",
     ))
@@ -675,8 +679,10 @@ with tab4:
     st_data = analysis_df[["Year", "under5_stunting_pct"]].dropna()
     st_data["Color"] = st_data["under5_stunting_pct"].apply(lambda v: status_color(v, "under5_stunting_pct"))
     fig.add_trace(
-        go.Bar(x=st_data["Year"], y=st_data["under5_stunting_pct"], marker_color=st_data["Color"],
-               text=st_data["under5_stunting_pct"].round(1), textposition="outside", textfont_color="white",
+        go.Scatter(x=st_data["Year"], y=st_data["under5_stunting_pct"], mode="lines+markers",
+               line=dict(color=WARNING, width=2.5),
+               marker=dict(color=st_data["Color"], size=8),
+               text=st_data["under5_stunting_pct"].round(1), textposition="top center", textfont_color="white",
                hovertemplate="<b>Year %{x}</b><br>Stunting: %{y:.1f}%<extra></extra>"),
         row=1, col=1
     )
@@ -686,8 +692,10 @@ with tab4:
     wa_data = analysis_df[["Year", "under5_wasting_pct"]].dropna()
     wa_data["Color"] = wa_data["under5_wasting_pct"].apply(lambda v: status_color(v, "under5_wasting_pct"))
     fig.add_trace(
-        go.Bar(x=wa_data["Year"], y=wa_data["under5_wasting_pct"], marker_color=wa_data["Color"],
-               text=wa_data["under5_wasting_pct"].round(1), textposition="outside", textfont_color="white",
+        go.Scatter(x=wa_data["Year"], y=wa_data["under5_wasting_pct"], mode="lines+markers",
+               line=dict(color=DANGER, width=2.5),
+               marker=dict(color=wa_data["Color"], size=8),
+               text=wa_data["under5_wasting_pct"].round(1), textposition="top center", textfont_color="white",
                hovertemplate="<b>Year %{x}</b><br>Wasting: %{y:.1f}%<extra></extra>"),
         row=1, col=2
     )
@@ -857,6 +865,39 @@ with tab5:
         for _, row in county_risk_summary.tail(5).iterrows():
             c = ALERT_COLORS.get(row["overall_max_alert"], NEUTRAL)
             st.markdown(f"<span style=\"color:{c};\">*</span> <b>{row['adm1_name']}</b> - {row['overall_alert_label']}", unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.subheader("Top 10 Counties: Critical vs Heightened Alerts")
+    st.markdown("""
+    This bar chart compares the number of critical and heightened food security alerts
+    across the 10 most affected counties. Unlike the trend charts above, this is a
+    snapshot comparison, not a time series.
+    """)
+
+    top10 = county_risk_summary.head(10)
+    fig_bar = go.Figure()
+    fig_bar.add_trace(go.Bar(
+        x=top10["adm1_name"], y=top10["total_critical_flags"],
+        name="Critical", marker_color=DANGER,
+        text=top10["total_critical_flags"], textposition="outside", textfont_color="white",
+        hovertemplate="<b>%{x}</b><br>Critical: %{y}<extra></extra>",
+    ))
+    fig_bar.add_trace(go.Bar(
+        x=top10["adm1_name"], y=top10["total_heightened_flags"],
+        name="Heightened", marker_color=WARNING,
+        text=top10["total_heightened_flags"], textposition="outside", textfont_color="white",
+        hovertemplate="<b>%{x}</b><br>Heightened: %{y}<extra></extra>",
+    ))
+    fig_bar.update_layout(
+        title=f"Top 10 Counties by Alert Count ({latest_alert_date.date()})",
+        xaxis_title="County", yaxis_title="Number of Alerts",
+        barmode="group",
+        plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
+        font_color="white", legend_font_color="white",
+        xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
+        height=500,
+    )
+    st.plotly_chart(fig_bar, use_container_width=True)
 
     st.markdown("---")
     st.subheader("County x Indicator Heatmap")
