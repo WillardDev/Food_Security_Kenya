@@ -346,31 +346,71 @@ with tab1:
         "dietary_energy_adequacy_pct": "Energy Adequacy (%)",
     })
 
-    fig = px.bar(
-        df_melted, x="Year", y="Value", color="Indicator",
-        barmode="group",
-        title="Key Food Security Indicators Over Time (2000-2025)",
-        labels={"Value": "Value", "Year": "Year"},
-        color_discrete_map={
-            "Undernourished (million)": DANGER,
-            "Food Insecurity (%)": WARNING,
-            "Energy Adequacy (%)": SAFE,
-        },
-        height=500,
-    )
-    fig.update_traces(hovertemplate="<b>Year %{x}</b><br>%{data.name}: %{y:.1f}<extra></extra>")
+    fig = go.Figure()
+    color_map = {"Undernourished (million)": DANGER, "Food Insecurity (%)": WARNING, "Energy Adequacy (%)": SAFE}
+    for indicator_name, group in df_melted.groupby("Indicator"):
+        fig.add_trace(go.Scatter(
+            x=group["Year"], y=group["Value"],
+            mode="lines+markers",
+            name=indicator_name,
+            line=dict(color=color_map.get(indicator_name, NEUTRAL), width=2.5),
+            marker=dict(size=7),
+            hovertemplate=f"<b>Year %{{x}}</b><br>{indicator_name}: %{{y:.1f}}<extra></extra>",
+        ))
     fig.update_layout(
+        title="Key Food Security Indicators Over Time (2000-2025)",
+        xaxis_title="Year", yaxis_title="Value",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
         font_color="white", legend_font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
+        height=500,
     )
     st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("Correlation: GDP per Capita vs Food Insecurity")
+    st.markdown("""
+    This scatter plot explores whether economic growth (GDP per capita) is associated with
+    lower food insecurity. Each point represents one year. If growth helped, we would see
+    a downward trend (higher GDP = lower insecurity). Hover over points for details.
+    """)
+
+    corr_df = analysis_df[["Year", "gdp_per_capita_ppp", "moderate_or_severe_food_insecurity_pct"]].dropna()
+
+    fig_corr = go.Figure()
+    fig_corr.add_trace(go.Scatter(
+        x=corr_df["gdp_per_capita_ppp"],
+        y=corr_df["moderate_or_severe_food_insecurity_pct"],
+        mode="markers+text",
+        marker=dict(
+            size=12,
+            color=corr_df["Year"],
+            colorscale="Viridis",
+            showscale=True,
+            colorbar=dict(title="Year"),
+            line=dict(width=1, color="white"),
+        ),
+        text=corr_df["Year"],
+        textposition="top center",
+        textfont=dict(color="white", size=9),
+        hovertemplate="<b>Year %{text}</b><br>GDP per capita: $%{x:,.0f}<br>Food Insecurity: %{y:.1f}%<extra></extra>",
+    ))
+    fig_corr.update_layout(
+        title="GDP per Capita vs Food Insecurity Rate",
+        xaxis_title="GDP per Capita (PPP, Int$)",
+        yaxis_title="Food Insecurity (%)",
+        plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
+        font_color="white",
+        xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
+        height=450,
+    )
+    st.plotly_chart(fig_corr, use_container_width=True)
 
     latest_row = analysis_df.sort_values("Year").tail(1)
     year = int(latest_row["Year"].iloc[0])
     undernourishment = latest_row["undernourishment_pct"].iloc[0]
     food_insec = latest_row["moderate_or_severe_food_insecurity_pct"].iloc[0]
-    st.markdown(f"""
+    insight = f"""
     <div class="danger-box">
     <b>Key insight:</b> In {year}, <b>{food_insec:.0f}% of Kenyans</b> experienced food insecurity while
     <b>{undernourishment:.1f}% were undernourished</b>. The number of undernourished people has grown from
@@ -378,7 +418,8 @@ with tab1:
     Even as GDP grew from $3,700 to $5,800 per capita, food insecurity worsened.
     <b>Economic growth alone has not solved Kenya food crisis.</b>
     </div>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(insight, unsafe_allow_html=True)
 
 # TAB 2: Availability
 with tab2:
