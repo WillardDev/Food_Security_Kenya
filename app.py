@@ -113,7 +113,10 @@ def styled_ax(ax):
 DATA_DIR = Path("data")
 JMR_DIR = DATA_DIR / "world_bank_jmr"
 SHAPEFILE_DIR = DATA_DIR / "shapefiles"
-KEYS = ["Iso3", "Area", "Year"]@st.cache_data
+KEYS = ["Iso3", "Area", "Year"]
+
+
+@st.cache_data
 def load_all():
     food_security = pd.read_csv(DATA_DIR / "ken_faostat_food_security_indicators.csv")
     food_balances = pd.read_csv(DATA_DIR / "ken_faostat_food_balances.csv")
