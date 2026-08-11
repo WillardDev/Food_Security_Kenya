@@ -395,20 +395,8 @@ with tab1:
         textfont=dict(color="white", size=9),
         hovertemplate="<b>Year %{text}</b><br>GDP per capita: $%{x:,.0f}<br>Food Insecurity: %{y:.1f}%<extra></extra>",
     ))
-    # Add trend line
-    from numpy.polynomial import polynomial as P
-    x = corr_df["gdp_per_capita_ppp"].values
-    y = corr_df["moderate_or_severe_food_insecurity_pct"].values
-    coeffs = P.polyfit(x, y, 1)
-    x_line = np.linspace(x.min(), x.max(), 100)
-    y_line = P.polyval(x_line, coeffs)
-    fig_corr.add_trace(go.Scatter(
-        x=x_line, y=y_line, mode="lines",
-        name="Trend Line", line=dict(color="#e74c3c", width=2, dash="dash"),
-        hovertemplate="Trend<extra></extra>",
-    ))
     fig_corr.update_layout(
-        title="GDP per Capita vs Food Insecurity Rate (with Trend Line)",
+        title="GDP per Capita vs Food Insecurity Rate",
         xaxis_title="GDP per Capita (PPP, Int$)",
         yaxis_title="Food Insecurity (%)",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
@@ -605,7 +593,7 @@ with tab3:
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
         height=600,
     )
-    st.plot(fig2, use_container_width=True) if False else st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
 
     st.markdown(f"""
     <div class="danger-box">
@@ -899,6 +887,8 @@ with tab5:
         zmin=0, zmax=2,
         hovertemplate="<b>%{y}</b><br>%{x}<br>Alert: %{z:.0f}<extra></extra>",
         colorbar=dict(title="Alert", tickvals=[0, 1, 2], ticktext=["Typical", "Heightened", "Critical"]),
+        xgap=2,
+        ygap=2,
     ))
     fig_hm.update_layout(
         title=f"JMR Alert Levels by County ({latest_alert_date.date()})",
