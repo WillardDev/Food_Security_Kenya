@@ -1,4 +1,12 @@
-# Python
+# Code / notebooks / app files
+app.py
+dashboard/
+notebooks/
+requirements.txt
+*.py
+*.ipynb
+
+# Python cache
 __pycache__/
 *.py[cod]
 *.egg-info/
