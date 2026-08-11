@@ -410,13 +410,23 @@ with tab1:
     year = int(latest_row["Year"].iloc[0])
     undernourishment = latest_row["undernourishment_pct"].iloc[0]
     food_insec = latest_row["moderate_or_severe_food_insecurity_pct"].iloc[0]
+    undernourished_millions = latest_row["undernourished_people_million"].iloc[0]
+    energy_adequacy = latest_row["dietary_energy_adequacy_pct"].iloc[0]
+    
     insight = f"""
     <div class="danger-box">
-    <b>Key insight:</b> In {year}, <b>{food_insec:.0f}% of Kenyans</b> experienced food insecurity while
-    <b>{undernourishment:.1f}% were undernourished</b>. The number of undernourished people has grown from
-    ~10 million (2002) to ~20 million (2025), driven by population growth outpacing food system improvements.
-    Even as GDP grew from $3,700 to $5,800 per capita, food insecurity worsened.
-    <b>Economic growth alone has not solved Kenya food crisis.</b>
+    <b>The big picture:</b> In {year}, <b>{food_insec:.0f}% of Kenyans</b> experienced some form of food insecurity while
+    <b>{undernourishment:.1f}% were chronically undernourished</b>, equivalent to roughly <b>{undernourished_millions:.0f} million people</b>.
+    The number of undernourished Kenyans has doubled from ~10 million (2002) to ~{undernourished_millions:.0f} million (2025),
+    driven by population growth that has outpaced improvements in food production and distribution.
+    <br><br>
+    Energy adequacy has remained relatively stable at ~{energy_adequacy:.0f}%, meaning Kenya produces just enough calories
+    to meet most of its needs but cannot achieve full self-sufficiency. The gap is filled through imports,
+    making the country vulnerable to global market fluctuations.
+    <br><br>
+    <b>Bottom line:</b> Despite economic growth, food insecurity has worsened. 
+    <b>Economic growth alone has not solved Kenya food crisis.</b> Without targeted interventions in affordability,
+    distribution, and agricultural productivity, the situation will continue to deteriorate as population grows.
     </div>
     """
     st.markdown(insight, unsafe_allow_html=True)
@@ -473,6 +483,14 @@ with tab2:
     st.markdown(f"""
     <div class="danger-box">
     {insight_text("dietary_energy_adequacy_pct", val, year)}
+    <br><br>
+    <b>Why this matters:</b> A value below 100% means Kenya cannot produce enough food for its population
+    and must rely on imports and aid. This creates vulnerability to global price shocks and supply disruptions.
+    When global food prices spike, as they did in 2008 and 2022, Kenya experiences immediate food crises.
+    <br><br>
+    <b>Historical context:</b> Energy adequacy was highest around 2009-2012 (~96-97%) but has since
+    declined to ~93%. This decline coincides with rapid population growth, climate change impacts,
+    and underinvestment in agricultural productivity.
     </div>
     """, unsafe_allow_html=True)
 
@@ -604,6 +622,14 @@ with tab3:
     {insight_text("moderate_or_severe_food_insecurity_pct", mod_data["moderate_or_severe_food_insecurity_pct"].iloc[-1], int(mod_data["Year"].iloc[-1]))}
     <br><br>
     {insight_text("severe_food_insecurity_pct", sev_data["severe_food_insecurity_pct"].iloc[-1], int(sev_data["Year"].iloc[-1]))}
+    <br><br>
+    <b>The spectrum of food insecurity:</b> Food insecurity exists on a spectrum from mild anxiety 
+    about food availability to extreme deprivation. The gap between moderate/severe (~70%) and severe (~28%) 
+    represents people who worry about food or skip meals but do not go entire days without eating.
+    <br><br>
+    Both measures have worsened significantly since 2016, reflecting the combined impact of drought, 
+    economic shocks, and the COVID-19 pandemic. The gap between the two lines has narrowed, 
+    meaning more people are sliding from moderate into severe food insecurity.
     </div>
     """, unsafe_allow_html=True)
 
@@ -643,13 +669,21 @@ with tab3:
 
     val = analysis_df.dropna(subset=["healthy_diet_unaffordable_pct"]).sort_values("Year").tail(1)["healthy_diet_unaffordable_pct"].iloc[0]
     year = int(analysis_df.dropna(subset=["healthy_diet_unaffordable_pct"]).sort_values("Year").tail(1)["Year"].iloc[0])
+    people_unafford = analysis_df.dropna(subset=["people_unable_afford_healthy_diet_million"]).sort_values("Year").tail(1)["people_unable_afford_healthy_diet_million"].iloc[0]
     st.markdown(f"""
     <div class="danger-box">
     {insight_text("healthy_diet_unaffordable_pct", val, year)}
     <br><br>
-    <b>The bottom line:</b> 43+ million Kenyans (76% of the population) cannot afford a healthy diet.
-    They rely on cheap, nutrient-poor staples like maize and ugali, which explains why child stunting
-    remains high despite adequate calorie supply. <b>Availability without access is not food security.</b>
+    <b>The affordability crisis in numbers:</b> A healthy diet costs approximately $3.20 per person per day
+    (international dollars). With <b>{people_unafford:.0f} million Kenyans</b> unable to afford this,
+    the majority of the population relies on cheap, nutrient-poor staples like maize, ugali, and porridge.
+    <br><br>
+    This explains the paradox of high calorie adequacy but high stunting rates. People get enough calories
+    but not enough nutrients. Children fill their stomachs but do not get the vitamins, minerals, and protein
+    needed for healthy growth. This is called "hidden hunger", enough food but not enough nutrition.
+    <br><br>
+    <b>Availability without access is not food security.</b> Kenya can produce enough calories, but poverty
+    prevents most Kenyans from accessing a nutritious diet.
     </div>
     """, unsafe_allow_html=True)
 
@@ -720,6 +754,16 @@ with tab4:
     {insight_text("under5_stunting_pct", st_val, st_year)}
     <br><br>
     {insight_text("under5_wasting_pct", wa_val, wa_year) if wa_val else ""}
+    <br><br>
+    <b>Understanding the difference:</b> Stunting reflects chronic, long-term malnutrition that develops
+    over months or years of inadequate nutrition. It causes permanent physical and cognitive damage.
+    Wasting reflects acute, recent food shortage, a child who has recently lost weight due to illness
+    or lack of food. Wasting can be reversed with proper nutrition, but stunting is largely irreversible.
+    <br><br>
+    <b>Progress and challenges:</b> Stunting has improved dramatically from ~38% (2000) to ~18% (2024),
+    reflecting decades of nutrition interventions. However, the remaining 18% still represents millions
+    of children whose potential is permanently limited. Wasting fluctuates with drought cycles and
+    remains a persistent threat during dry seasons.
     </div>
     """, unsafe_allow_html=True)
 
@@ -749,6 +793,28 @@ with tab4:
         height=550,
     )
     st.plotly_chart(fig2, use_container_width=True)
+
+    gdp_data = analysis_df[["Year", "gdp_per_capita_ppp"]].dropna()
+    gdp_start = gdp_data["gdp_per_capita_ppp"].iloc[0]
+    gdp_end = gdp_data["gdp_per_capita_ppp"].iloc[-1]
+    gdp_year_start = int(gdp_data["Year"].iloc[0])
+    gdp_year_end = int(gdp_data["Year"].iloc[-1])
+    gdp_growth = ((gdp_end - gdp_start) / gdp_start) * 100
+
+    st.markdown(f"""
+    <div class="story-box">
+    <b>Economic context:</b> Kenya GDP per capita grew from ~${gdp_start:,.0f} ({gdp_year_start}) 
+    to ~${gdp_end:,.0f} ({gdp_year_end}), a {gdp_growth:.0f}% increase over two decades.
+    <br><br>
+    <b>The paradox:</b> Despite this economic growth, food insecurity worsened over the same period.
+    This reveals a critical insight: <b>economic growth alone does not solve food insecurity</b>.
+    The benefits of growth have not been equitably distributed. Income inequality means that
+    the poorest Kenyans have not seen meaningful improvements in their ability to afford nutritious food.
+    <br><br>
+    <b>Policy implication:</b> Kenya needs targeted interventions, social protection programs,
+    agricultural investments, and nutrition initiatives, not just GDP growth.
+    </div>
+    """, unsafe_allow_html=True)
 
 # TAB 5: County Risk Map
 with tab5:
