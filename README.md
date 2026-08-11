@@ -3,17 +3,17 @@
 Welcome to the Food Security in Kenya End-to-End Analysis Project. This project uses data analysis and visualization to examine Kenya's food security crisis — tracking national trends, identifying high-risk counties, and mapping risk patterns to inform policy and intervention strategies.
 
 ## Table of Contents
-- [🎯 Project Objectives](#project-objectives)
-- [📘 Project Overview](#project-overview)
-- [🔍 Key Findings](#key-findings)
-- [🧰 Tools & Technologies](#tools--technologies)
-- [📊 Visualizations](#visualizations)
-- [🧾 Dataset](#dataset)
-- [🧠 Future Enhancements](#future-enhancements)
+- [ Project Objectives](#project-objectives)
+- [ Project Overview](#project-overview)
+- [ Key Findings](#key-findings)
+- [ Tools & Technologies](#tools--technologies)
+- [ Visualizations](#visualizations)
+- [ Dataset](#dataset)
+- [ Future Enhancements](#future-enhancements)
 
 ---
 
-## 🎯 Project Objectives
+##  Project Objectives
 
 The primary goals of this project were to:
 
@@ -25,7 +25,7 @@ The primary goals of this project were to:
 
 ---
 
-## 📘 Project Overview
+## Project Overview
 
 **What is Food Security?**
 
@@ -35,6 +35,8 @@ Food Security exists when all people, at all times, have physical, social, and e
 - **Access:** Can people afford and physically reach food?
 - **Utilization:** Is the food nutritious and safely prepared?
 - **Stability:** Is access to food consistent over time, or disrupted by shocks?
+
+##  Problem Statement
 
 Kenya faces persistent food insecurity due to climate variability (droughts, floods), economic shocks, displacement, and regional inequalities — particularly in arid and semi-arid lands (ASALs). This project applies data analysis to quantify and visualize these challenges.
 
@@ -63,7 +65,7 @@ EDA is the process of summarizing and visually exploring a dataset to understand
 
 ---
 
-## 🔍 Key Findings
+## Key Findings
 
 *(To be completed after analysis — placeholder examples below)*
 
@@ -74,7 +76,7 @@ EDA is the process of summarizing and visually exploring a dataset to understand
 
 ---
 
-## 🧰 Tools & Technologies
+## Tools & Technologies
 
 | Tool | Purpose |
 | --- | --- |
@@ -89,7 +91,7 @@ EDA is the process of summarizing and visually exploring a dataset to understand
 
 ---
 
-## 📊 Visualizations
+## Visualizations
 
 Visualizations were developed using GeoPandas, Matplotlib, Seaborn, and Plotly:
 
@@ -102,7 +104,7 @@ Visualizations were developed using GeoPandas, Matplotlib, Seaborn, and Plotly:
 
 ---
 
-## 🧾 Dataset
+## Dataset
 
 All datasets are stored in the `data/` directory:
 
@@ -121,7 +123,7 @@ All datasets are stored in the `data/` directory:
 
 ---
 
-## 🧠 Future Enhancements
+## Future Enhancements
 
 - Build an interactive web dashboard with Plotly Dash or Streamlit.
 - Deploy a conversational AI agent to answer questions about food security in Kenya.
