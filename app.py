@@ -185,7 +185,7 @@ def build_analysis_df(food_security, food_balances, healthy_diet):
 
 
 @st.cache_data
-def build_county_data(jmr_data, jmr_pcodes, kenya_counties):
+def build_county_data(jmr_data, jmr_pcodes, _kenya_counties):
     jmr_admin = jmr_data.merge(
         jmr_pcodes[["adm1_pcode", "adm1_name", "adm2_pcode", "adm2_name"]],
         on="adm2_pcode", how="left",
@@ -215,10 +215,12 @@ def build_county_data(jmr_data, jmr_pcodes, kenya_counties):
     summary["overall_alert_label"] = summary["overall_max_alert"].map(ALERT_LABELS)
     summary = summary.sort_values(["overall_max_alert", "total_critical_flags"], ascending=False)
 
-    geo = kenya_counties.merge(summary, on="adm1_pcode", how="left")
-    geo = gpd.GeoDataFrame(geo, geometry="geometry", crs=kenya_counties.crs)
+    geo = _kenya_counties.merge(summary, on="adm1_pcode", how="left")
+    geo = gpd.GeoDataFrame(geo, geometry="geometry", crs=_kenya_counties.crs)
 
     return county_alerts, summary, geo, latest_date
+
+
 sns.set_theme(style="darkgrid")
 plt.rcParams.update({
     "figure.facecolor": BG, "axes.facecolor": BG, "axes.edgecolor": GRID,
