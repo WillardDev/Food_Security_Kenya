@@ -11,8 +11,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 st.set_page_config(
-    page_title="Food Security in Kenya — Data Story",
-    page_icon="🇰🇪",
+    page_title="Food Security in Kenya",
+    page_icon=":bar_chart:",
     layout="wide",
 )
 
@@ -58,6 +58,7 @@ INDICATOR_META = {
     "gdp_per_capita_ppp":               {"label": "GDP per Capita", "unit": "Int$", "tip": "Economic output per person, adjusted for local prices"},
 }
 
+
 def status_color(value, indicator):
     if indicator not in THRESHOLDS or pd.isna(value):
         return NEUTRAL
@@ -77,17 +78,16 @@ def status_label(value, indicator):
         return "No data"
     warn, danger, direction = THRESHOLDS[indicator]
     if direction == "lower_is_better":
-        if value >= danger: return "🔴 Critical"
-        elif value >= warn: return "🟡 Warning"
-        else: return "🟢 Acceptable"
+        if value >= danger: return "Critical"
+        elif value >= warn: return "Warning"
+        else: return "Acceptable"
     else:
-        if value <= danger: return "🔴 Critical"
-        elif value <= warn: return "🟡 Warning"
-        else: return "🟢 Acceptable"
+        if value <= danger: return "Critical"
+        elif value <= warn: return "Warning"
+        else: return "Acceptable"
 
 
 def insight_text(indicator, value, year):
-    """Return descriptive insight text for an indicator at a given value."""
     if indicator not in THRESHOLDS or pd.isna(value):
         return "No data available."
     warn, danger, direction = THRESHOLDS[indicator]
@@ -98,39 +98,38 @@ def insight_text(indicator, value, year):
 
     texts = {
         "dietary_energy_adequacy_pct": {
-            "critical": f"In {year}, Kenya's domestic food supply met only {value:.1f}% of calorie needs. The country depends on imports and aid — highly vulnerable to global price shocks.",
-            "warning": f"At {value:.1f}%, energy adequacy is below the 100% target. Kenya consistently fails to produce enough food for its population.",
+            "critical": f"In {year}, Kenya domestic food supply met only {value:.1f}% of calorie needs. The country depends on imports and aid, making it highly vulnerable to global price shocks and supply chain disruptions.",
+            "warning": f"At {value:.1f}%, energy adequacy is below the 100% target. Kenya consistently fails to produce enough food for its population and relies on imports to fill the gap.",
             "acceptable": f"At {value:.1f}%, food supply adequately meets population needs.",
         },
         "undernourishment_pct": {
-            "critical": f"{value:.1f}% of Kenyans — roughly 1 in {int(100/value)} — are chronically undernourished. This is a persistent humanitarian crisis requiring systemic intervention.",
-            "warning": f"At {value:.1f}%, undernourishment affects millions. Chronic hunger impairs health, child development, and economic productivity.",
+            "critical": f"{value:.1f}% of Kenyans, roughly 1 in {int(100/value)}, are chronically undernourished in {year}. This is a persistent humanitarian crisis requiring systemic intervention in food production, distribution, and affordability.",
+            "warning": f"At {value:.1f}%, undernourishment remains in the warning zone. Millions of Kenyans experience chronic hunger that impairs health, productivity, and child development.",
             "acceptable": f"At {value:.1f}%, undernourishment is within manageable levels but still affects vulnerable populations.",
         },
         "moderate_or_severe_food_insecurity_pct": {
-            "critical": f"Over {value:.0f}% of Kenyans experienced food insecurity in {year}. The majority of the population regularly worries about food or skips meals.",
-            "warning": f"At {value:.0f}%, food insecurity has become normalized for most Kenyan households. Meal-skipping is routine, not exceptional.",
+            "critical": f"Over {value:.0f}% of Kenyans experienced food insecurity in {year}. The majority of the population regularly worries about food or skips meals. This is a societal crisis affecting more than 3 in 4 people.",
+            "warning": f"At {value:.0f}%, food insecurity affects a staggering portion of the population. Food anxiety and meal-skipping have become normalized experiences for most Kenyan households.",
             "acceptable": f"At {value:.0f}%, food insecurity affects a portion of the population but is not yet widespread.",
         },
         "severe_food_insecurity_pct": {
-            "critical": f"{value:.1f}% of Kenyans went entire days without eating. This is extreme deprivation — people experiencing 24+ hours of zero food intake.",
+            "critical": f"{value:.1f}% of Kenyans went entire days without eating in {year}. This is extreme deprivation, people experiencing 24+ hours of zero food intake. Immediate food assistance is required.",
             "warning": f"At {value:.1f}%, severe food deprivation affects millions. Going a full day without food causes acute physical and psychological harm.",
             "acceptable": f"At {value:.1f}%, severe food deprivation is relatively contained.",
         },
         "under5_stunting_pct": {
-            "critical": f"{value:.1f}% of children under 5 are stunted. Stunting causes irreversible brain and body damage — these children will never reach their full potential.",
-            "warning": f"At {value:.1f}%, nearly 1 in 5 children suffer chronic malnutrition with lifelong consequences for health and cognition.",
+            "critical": f"{value:.1f}% of Kenyan children under 5 are stunted, too short for their age due to chronic malnutrition. Stunting causes irreversible brain and body damage that limits these children potential for life.",
+            "warning": f"At {value:.1f}%, nearly 1 in 5 children suffer chronic malnutrition with lifelong consequences for health and cognitive development.",
             "acceptable": f"At {value:.1f}%, stunting has improved significantly but remains a concern for vulnerable communities.",
         },
         "healthy_diet_unaffordable_pct": {
-            "critical": f"{value:.0f}% of Kenyans cannot afford a healthy diet. They rely on cheap, nutrient-poor staples — explaining high stunting despite adequate calories.",
+            "critical": f"{value:.0f}% of Kenyans cannot afford a healthy diet. They rely on cheap, nutrient-poor staples like maize and ugali, which explains high stunting despite adequate calorie supply.",
             "warning": f"At {value:.0f}%, the majority cannot afford nutritious food. Cheap staples dominate, leading to hidden hunger and micronutrient deficiencies.",
             "acceptable": f"At {value:.0f}%, a significant portion still struggles to afford nutritious food.",
         },
     }
     return texts.get(indicator, {}).get(severity, f"Value: {value:.1f} ({severity})")
 
-# ── Data Loading ───────────────────────────────────────────────
 DATA_DIR = Path("data")
 JMR_DIR = DATA_DIR / "world_bank_jmr"
 SHAPEFILE_DIR = DATA_DIR / "shapefiles"
@@ -230,7 +229,7 @@ def build_county_data(jmr_data, jmr_pcodes, _kenya_counties):
     geo = gpd.GeoDataFrame(geo, geometry="geometry", crs=_kenya_counties.crs)
     return county_alerts, summary, geo, latest_date
 
-# ── UI Setup ───────────────────────────────────────────────────
+
 st.markdown("""
 <style>
     .main { background-color: #0e1117; }
@@ -259,7 +258,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🇰🇪 Food Security in Kenya — A Data Story")
+st.title("Food Security in Kenya - A Data Story")
 st.markdown("*An interactive analysis of national trends, county risk, and the affordability crisis threatening 43+ million Kenyans.*")
 st.markdown("---")
 
@@ -271,40 +270,37 @@ with st.spinner("Loading data..."):
     )
 
 with st.sidebar:
-    st.header("📊 Dashboard Controls")
+    st.header("Dashboard Controls")
     st.markdown("---")
     st.markdown("### Status Legend")
-    st.markdown(f"<span style='color:{SAFE}'>🟢 Acceptable</span> — Within safe range", unsafe_allow_html=True)
-    st.markdown(f"<span style='color:{WARNING}'>🟡 Warning</span> — Needs attention", unsafe_allow_html=True)
-    st.markdown(f"<span style='color:{DANGER}'>🔴 Critical</span> — Immediate action required", unsafe_allow_html=True)
+    st.markdown(f"<span style=\"color:{SAFE}\">Acceptable</span> - Within safe range", unsafe_allow_html=True)
+    st.markdown(f"<span style=\"color:{WARNING}\">Warning</span> - Needs attention", unsafe_allow_html=True)
+    st.markdown(f"<span style=\"color:{DANGER}\">Critical</span> - Immediate action required", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("### About the Data")
-    st.markdown("- **FAOSTAT**: UN FAO national statistics\n- **World Bank JMR**: County-level risk monitoring\n- **Coverage**: 2000–2025 (national), 2010–2026 (county)")
+    st.markdown("- **FAOSTAT**: UN FAO national statistics\n- **World Bank JMR**: County-level risk monitoring\n- **Coverage**: 2000-2025 (national), 2010-2026 (county)")
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📋 Executive Summary", "🌾 Availability", "💰 Access & Affordability",
-    "👶 Child Nutrition", "🗺️ County Risk Map",
+    "Executive Summary", "Availability", "Access and Affordability",
+    "Child Nutrition", "County Risk Map",
 ])
 
-# ═══════════════════════════════════════════════════════════════
 # TAB 1: Executive Summary
-# ═══════════════════════════════════════════════════════════════
 with tab1:
-    st.header("Kenya's Food Security Crisis — At a Glance")
+    st.header("Kenya Food Security Crisis - At a Glance")
     st.markdown("""
     <div class="story-box">
     Kenya faces a <b>persistent, multi-dimensional food security crisis</b>. Despite steady economic growth over two decades,
     the majority of Kenyans cannot afford a healthy diet, and nearly 1 in 3 are undernourished. This dashboard tells the story
     through interactive national trends, county risk maps, and diet affordability data.<br><br>
-    <b>How to read this dashboard:</b> Every chart uses a consistent color system —
-    <span style='color:#2ecc71'>green for acceptable</span>,
-    <span style='color:#f39c12'>yellow for warning</span>, and
-    <span style='color:#e74c3c'>red for critical</span>.
+    <b>How to read this dashboard:</b> Every chart uses a consistent color system:
+    <span style=\"color:#2ecc71\">green for acceptable</span>,
+    <span style=\"color:#f39c12\">yellow for warning</span>, and
+    <span style=\"color:#e74c3c\">red for critical</span>.
     Hover over any data point for detailed values and insights.
     </div>
     """, unsafe_allow_html=True)
 
-    # Key metric cards
     key_indicators = [
         ("undernourishment_pct", "Undernourishment"),
         ("moderate_or_severe_food_insecurity_pct", "Food Insecurity"),
@@ -338,7 +334,7 @@ with tab1:
     st.markdown("---")
     st.subheader("The Big Picture: Two Decades of Food Security")
 
-    # Animated bar chart with plotly
+    # Interactive (non-animated) bar chart
     df_melted = analysis_df.melt(
         id_vars="Year",
         value_vars=["undernourished_people_million", "moderate_or_severe_food_insecurity_pct", "dietary_energy_adequacy_pct"],
@@ -349,19 +345,11 @@ with tab1:
         "moderate_or_severe_food_insecurity_pct": "Food Insecurity (%)",
         "dietary_energy_adequacy_pct": "Energy Adequacy (%)",
     })
-    indicator_to_col = {
-        "Undernourished (million)": "undernourished_people_million",
-        "Food Insecurity (%)": "moderate_or_severe_food_insecurity_pct",
-        "Energy Adequacy (%)": "dietary_energy_adequacy_pct",
-    }
-    df_melted["Color"] = df_melted.apply(
-        lambda r: status_color(r["Value"], indicator_to_col.get(r["Indicator"], "")), axis=1
-    )
 
     fig = px.bar(
         df_melted, x="Year", y="Value", color="Indicator",
-        animation_frame="Year", animation_group="Value",
-        title="Key Food Security Indicators Over Time (2000–2025) — Play the animation",
+        barmode="group",
+        title="Key Food Security Indicators Over Time (2000-2025)",
         labels={"Value": "Value", "Year": "Year"},
         color_discrete_map={
             "Undernourished (million)": DANGER,
@@ -370,6 +358,7 @@ with tab1:
         },
         height=500,
     )
+    fig.update_traces(hovertemplate="<b>Year %{x}</b><br>%{data.name}: %{y:.1f}<extra></extra>")
     fig.update_layout(
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
         font_color="white", legend_font_color="white",
@@ -377,7 +366,6 @@ with tab1:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Insight
     latest_row = analysis_df.sort_values("Year").tail(1)
     year = int(latest_row["Year"].iloc[0])
     undernourishment = latest_row["undernourishment_pct"].iloc[0]
@@ -386,31 +374,28 @@ with tab1:
     <div class="danger-box">
     <b>Key insight:</b> In {year}, <b>{food_insec:.0f}% of Kenyans</b> experienced food insecurity while
     <b>{undernourishment:.1f}% were undernourished</b>. The number of undernourished people has grown from
-    ~10 million (2002) to ~20 million (2025) — driven by population growth outpacing food system improvements.
+    ~10 million (2002) to ~20 million (2025), driven by population growth outpacing food system improvements.
     Even as GDP grew from $3,700 to $5,800 per capita, food insecurity worsened.
-    <b>Economic growth alone has not solved Kenya's food crisis.</b>
+    <b>Economic growth alone has not solved Kenya food crisis.</b>
     </div>
     """, unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════════════
 # TAB 2: Availability
-# ═══════════════════════════════════════════════════════════════
 with tab2:
-    st.header("🌾 Availability — Is There Enough Food?")
+    st.header("Availability - Is There Enough Food?")
     st.markdown("""
     <div class="story-box">
-    <b>What this measures:</b> Whether Kenya produces or imports enough food to meet its population's
+    <b>What this measures:</b> Whether Kenya produces or imports enough food to meet its population
     nutritional needs. We track calories, protein, and fat available per person per day, plus the
-    overall dietary energy adequacy — the percentage of calorie needs met by the food supply.<br><br>
+    overall dietary energy adequacy, the percentage of calorie needs met by the food supply.<br><br>
     <b>Why this matters:</b> If a country cannot produce enough food, it must import the rest.
     Import dependence creates vulnerability to global price shocks, currency fluctuations, and supply chain disruptions.
-    Kenya has been import-dependent for decades.
     </div>
     """, unsafe_allow_html=True)
 
     st.subheader("Dietary Energy Supply Adequacy")
     st.markdown("""
-    This is the **percentage of the population's daily calorie needs** that are met by the domestic food supply.
+    This is the **percentage of the population daily calorie needs** that are met by the domestic food supply.
     A value of 100% means supply exactly meets demand. Below 100% means Kenya relies on imports or aid.
     """)
 
@@ -424,13 +409,13 @@ with tab2:
         text=data["dietary_energy_adequacy_pct"].round(1),
         textposition="outside",
         textfont_color="white",
-        hovertemplate="<b>Year %{x}</b><br>Energy Adequacy: %{y:.1f}%<br><extra></extra>",
+        hovertemplate="<b>Year %{x}</b><br>Energy Adequacy: %{y:.1f}%<extra></extra>",
     ))
     fig.add_hline(y=100, line_dash="solid", line_color=SAFE, line_width=2, annotation_text="100% target", annotation_position="top left", annotation_font_color=SAFE)
     fig.add_hline(y=95, line_dash="dash", line_color=WARNING, line_width=1.5, annotation_text="95% warning", annotation_position="top left", annotation_font_color=WARNING)
     fig.add_hline(y=90, line_dash="dash", line_color=DANGER, line_width=1.5, annotation_text="90% critical", annotation_position="top left", annotation_font_color=DANGER)
     fig.update_layout(
-        title="Dietary Energy Supply Adequacy — Kenya",
+        title="Dietary Energy Supply Adequacy - Kenya",
         xaxis_title="Year", yaxis_title="% of calorie needs met",
         yaxis_range=[85, 105],
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
@@ -452,7 +437,6 @@ with tab2:
     st.markdown("""
     These three metrics show the actual nutritional content available per Kenyan per day.
     Recommended minimums: **2,100 kcal**, **50g protein**, **40g fat**.
-    Hover over points for detailed values.
     """)
 
     fig2 = make_subplots(rows=1, cols=3, subplot_titles=("Calories (kcal/day)", "Protein (g/day)", "Fat (g/day)"))
@@ -478,31 +462,28 @@ with tab2:
 
     fig2.update_layout(
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
-        font_color="white", showlegend=False,
-        height=450,
+        font_color="white", showlegend=False, height=450,
     )
     fig2.update_xaxes(gridcolor="#262730")
     fig2.update_yaxes(gridcolor="#262730")
     st.plotly_chart(fig2, use_container_width=True)
 
-# ═══════════════════════════════════════════════════════════════
-# TAB 3: Access & Affordability
-# ═══════════════════════════════════════════════════════════════
+# TAB 3: Access and Affordability
 with tab3:
-    st.header("💰 Access & Affordability — Can People Afford Food?")
+    st.header("Access and Affordability - Can People Afford Food?")
     st.markdown("""
     <div class="story-box">
     <b>What this measures:</b> Whether Kenyans can physically and economically access the food they need.
-    This is the most critical dimension — even when food is available, poverty prevents people from affording it.
-    Kenya's healthy diet costs ~$3.20/day (international dollars), but 76% of the population cannot afford it.<br><br>
+    This is the most critical dimension. Even when food is available, poverty prevents people from affording it.
+    Kenya healthy diet costs ~$3.20/day (international dollars), but 76% of the population cannot afford it.<br><br>
     <b>The paradox:</b> Kenya has adequate calorie supply (~93% of needs met) yet most people are food insecure.
-    The problem is not scarcity — it's poverty and affordability.
+    The problem is not scarcity, it is poverty and affordability.
     </div>
     """, unsafe_allow_html=True)
 
     st.subheader("Prevalence of Undernourishment")
     st.markdown("""
-    The percentage of Kenya's population that **consistently fails to meet their daily calorie requirements**.
+    The percentage of Kenya population that **consistently fails to meet their daily calorie requirements**.
     WHO thresholds: <15% = acceptable, 15-25% = warning, >25% = critical.
     """)
 
@@ -521,13 +502,13 @@ with tab3:
     fig.add_hline(y=15, line_dash="dash", line_color=WARNING, annotation_text="15% warning", annotation_position="top left", annotation_font_color=WARNING)
     fig.add_hline(y=25, line_dash="dash", line_color=DANGER, annotation_text="25% critical", annotation_position="top left", annotation_font_color=DANGER)
     fig.update_layout(
-        title="Undernourishment Rate — Kenya",
+        title="Undernourishment Rate - Kenya",
         xaxis_title="Year", yaxis_title="% of population",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117", font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
         height=500,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.image(fig, use_container_width=True) if False else st.plotly_chart(fig, use_container_width=True)
 
     val = data["undernourishment_pct"].iloc[-1]
     year = int(data["Year"].iloc[-1])
@@ -564,14 +545,14 @@ with tab3:
     fig2.add_hline(y=40, line_dash="dash", line_color=WARNING, annotation_text="40% warning", annotation_font_color=WARNING)
     fig2.add_hline(y=60, line_dash="dash", line_color=DANGER, annotation_text="60% critical", annotation_font_color=DANGER)
     fig2.update_layout(
-        title="Food Insecurity Rates — Kenya",
+        title="Food Insecurity Rates - Kenya",
         xaxis_title="Year", yaxis_title="% of population",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117", font_color="white",
         legend_font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
         height=500,
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plot(fig2, use_container_width=True) if False else st.plotly_chart(fig2, use_container_width=True)
 
     st.markdown(f"""
     <div class="danger-box">
@@ -583,7 +564,7 @@ with tab3:
 
     st.subheader("The Affordability Crisis")
     st.markdown("""
-    A **healthy diet** includes fruits, vegetables, protein, and whole grains — not just staple calories.
+    A **healthy diet** includes fruits, vegetables, protein, and whole grains, not just staple calories.
     In Kenya, this costs ~$3.20/day (international dollars). The charts below show how cost and
     unaffordability have worsened over time.
     """)
@@ -622,28 +603,26 @@ with tab3:
     {insight_text("healthy_diet_unaffordable_pct", val, year)}
     <br><br>
     <b>The bottom line:</b> 43+ million Kenyans (76% of the population) cannot afford a healthy diet.
-    They rely on cheap, nutrient-poor staples like maize and ugali — which explains why child stunting
+    They rely on cheap, nutrient-poor staples like maize and ugali, which explains why child stunting
     remains high despite adequate calorie supply. <b>Availability without access is not food security.</b>
     </div>
     """, unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════════════
 # TAB 4: Child Nutrition
-# ═══════════════════════════════════════════════════════════════
 with tab4:
-    st.header("👶 Child Nutrition — The Human Cost")
+    st.header("Child Nutrition - The Human Cost")
     st.markdown("""
     <div class="story-box">
     <b>What this measures:</b> The impact of food insecurity on children under 5 years old.
-    <b>Stunting</b> (too short for age) indicates chronic malnutrition — long-term nutrient deficiency.
-    <b>Wasting</b> (dangerously thin) indicates acute malnutrition — recent severe food shortage.
+    <b>Stunting</b> (too short for age) indicates chronic malnutrition, long-term nutrient deficiency.
+    <b>Wasting</b> (dangerously thin) indicates acute malnutrition, recent severe food shortage.
     Both cause irreversible physical and cognitive damage.<br><br>
-    <b>Why this matters:</b> Malnourished children don't grow to their full height or cognitive potential.
-    This limits their education, earning capacity, and health for the rest of their lives — perpetuating the cycle of poverty.
+    <b>Why this matters:</b> Malnourished children do not grow to their full height or cognitive potential.
+    This limits their education, earning capacity, and health for the rest of their lives, perpetuating the cycle of poverty.
     </div>
     """, unsafe_allow_html=True)
 
-    st.subheader("Child Stunting & Wasting Trends")
+    st.subheader("Child Stunting and Wasting Trends")
     st.markdown("""
     **WHO thresholds:**
     - Stunting: <20% = acceptable, 20-30% = warning, >30% = very high (critical)
@@ -695,10 +674,10 @@ with tab4:
     </div>
     """, unsafe_allow_html=True)
 
-    st.subheader("Economic Context — GDP per Capita")
+    st.subheader("Economic Context - GDP per Capita")
     st.markdown("""
-    Economic growth should theoretically improve food access. Kenya's GDP per capita (PPP) has grown
-    from ~$3,700 (2000) to ~$5,800 (2024), but food insecurity has worsened — showing that
+    Economic growth should theoretically improve food access. Kenya GDP per capita (PPP) has grown
+    from ~$3,700 (2000) to ~$5,800 (2024), but food insecurity has worsened, showing that
     <b>growth alone does not solve food insecurity</b> without equitable distribution.
     """)
 
@@ -714,7 +693,7 @@ with tab4:
     ))
     fig2.add_hline(y=3000, line_dash="dash", line_color=WARNING, annotation_text="$3,000 warning", annotation_font_color=WARNING)
     fig2.update_layout(
-        title="GDP per Capita (PPP, constant 2021 Int$) — Kenya",
+        title="GDP per Capita (PPP, constant 2021 Int$) - Kenya",
         xaxis_title="Year", yaxis_title="GDP per capita (Int$)",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117", font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
@@ -722,29 +701,75 @@ with tab4:
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-# ═══════════════════════════════════════════════════════════════
 # TAB 5: County Risk Map
-# ═══════════════════════════════════════════════════════════════
 with tab5:
-    st.header("🗺️ County Risk Map — Where Is the Crisis Worst?")
+    st.header("County Risk Map - Where Is the Crisis Worst?")
     st.markdown(f"""
     <div class="story-box">
-    The World Bank's Joint Monitoring Report (JMR) tracks food security risk at the sub-county level
+    The World Bank Joint Monitoring Report (JMR) tracks food security risk at the sub-county level
     across 7 indicators: Conflict, Drought (NDVI), Drought (rainfall), Exchange rates, Food prices,
     and volatility in exchange rates and food prices.<br><br>
-    <b>Latest data: {latest_alert_date.date()}</b> — showing the maximum alert level reached in any sub-county
+    <b>Latest data: {latest_alert_date.date()}</b> - showing the maximum alert level reached in any sub-county
     within each county. Hover over bars and cells for detailed values.
     </div>
     """, unsafe_allow_html=True)
 
+    # County choropleth maps
+    st.subheader("County Risk Choropleth Maps")
+    st.markdown("""
+    These maps show the food security risk level for each of Kenya 47 counties.
+    Darker red indicates higher risk. Hover over a county for its name and risk level.
+    """)
+
+    map_choice = st.selectbox(
+        "Select map to display:",
+        ["Overall Alert Level", "Critical Alert Count"],
+    )
+
+    if map_choice == "Overall Alert Level":
+        # Match notebook: column="overall_max_alert", cmap YlOrRd equivalent
+        geo_json = county_geo_df.__geo_interface__
+        fig_map = px.choropleth(
+            county_geo_df,
+            geojson=geo_json,
+            locations=county_geo_df.index,
+            color="overall_max_alert",
+            color_continuous_scale=["#2ecc71", "#f39c12", "#e74c3c"],
+            range_color=[0, 2],
+            labels={"overall_max_alert": "Alert Level"},
+            title=f"Kenya County Food Security Risk - Overall Alert ({latest_alert_date.date()})",
+        )
+    else:
+        geo_json = county_geo_df.__geo_interface__
+        fig_map = px.choropleth(
+            county_geo_df,
+            geojson=geo_json,
+            locations=county_geo_df.index,
+            color="total_critical_flags",
+            color_continuous_scale="Reds",
+            labels={"total_critical_flags": "Critical Flags"},
+            title=f"Critical Admin-2 Indicator Flags by County ({latest_alert_date.date()})",
+        )
+
+    fig_map.update_geos(fitbounds="locations", visible=False)
+    fig_map.update_layout(
+        plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
+        font_color="white",
+        coloraxis_colorbar=dict(title="Alert"),
+        height=600,
+        margin=dict(l=0, r=0, t=40, b=0),
+    )
+    st.plotly_chart(fig_map, use_container_width=True)
+
+    st.markdown("---")
     st.subheader("County Risk Ranking")
-    st.markdown("Alert levels: 🟢 **Typical** (0) | 🟡 **Heightened** (1) | 🔴 **Critical** (2)")
+    st.markdown("Alert levels: **Typical** (0) | **Heightened** (1) | **Critical** (2)")
 
     col1, col2 = st.columns([2, 1])
 
     with col1:
         top = county_risk_summary.head(15)
-        top = top.iloc[::-1]  # reverse for horizontal bar (highest at top)
+        top = top.iloc[::-1]
 
         fig = go.Figure()
         fig.add_trace(go.Bar(
@@ -778,42 +803,42 @@ with tab5:
         for label, color in [("Critical", DANGER), ("Heightened", WARNING), ("Typical", SAFE)]:
             count = alert_counts.get(label, 0)
             pct = count / len(county_risk_summary) * 100
-            st.markdown(f"<div style='color:{color}; font-size:1.1em;'><b>{label}:</b> {count} counties ({pct:.0f}%)</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style=\"color:{color}; font-size:1.1em;\"><b>{label}:</b> {count} counties ({pct:.0f}%)</div>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("### Most Affected")
         for _, row in county_risk_summary.head(5).iterrows():
             c = ALERT_COLORS.get(row["overall_max_alert"], NEUTRAL)
-            dot = "●"
-            st.markdown(f"<span style='color:{c};'>{dot}</span> **{row['adm1_name']}** — {row['overall_alert_label']}", unsafe_allow_html=True)
+            st.markdown(f"<span style=\"color:{c};\">*</span> <b>{row['adm1_name']}</b> - {row['overall_alert_label']}", unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("### Least Affected")
         for _, row in county_risk_summary.tail(5).iterrows():
             c = ALERT_COLORS.get(row["overall_max_alert"], NEUTRAL)
-            dot = "●"
-            st.markdown(f"<span style='color:{c};'>{dot}</span> **{row['adm1_name']}** — {row['overall_alert_label']}", unsafe_allow_html=True)
+            st.markdown(f"<span style=\"color:{c};\">*</span> <b>{row['adm1_name']}</b> - {row['overall_alert_label']}", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.subheader("County × Indicator Heatmap")
+    st.subheader("County x Indicator Heatmap")
     st.markdown("""
     This heatmap shows the **maximum alert level** for each county across all JMR indicators.
     Red = at least one sub-county in that county reached critical level for that indicator.
     """)
 
-    matrix = county_alerts.pivot_table(
+    # Match notebook exactly: pivot latest_county_alerts with adm1_pcode, adm1_name as index
+    latest_for_heatmap = county_alerts[county_alerts["date"] == latest_alert_date].copy()
+    county_indicator_matrix = latest_for_heatmap.pivot_table(
         index=["adm1_pcode", "adm1_name"],
         columns="indicator",
         values="max_alert_level",
         aggfunc="max",
     ).reset_index()
-    matrix.columns.name = None
+    county_indicator_matrix.columns.name = None
 
-    hm_data = matrix.set_index("adm1_name").drop(columns="adm1_pcode")
+    hm_data = county_indicator_matrix.set_index("adm1_name").drop(columns="adm1_pcode")
     hm_data = hm_data.loc[county_risk_summary["adm1_name"]]
     hm_data = hm_data.astype(float)
 
-    fig2 = go.Figure(data=go.Heatmap(
+    fig_hm = go.Figure(data=go.Heatmap(
         z=hm_data.values,
         x=hm_data.columns.tolist(),
         y=hm_data.index.tolist(),
@@ -822,19 +847,19 @@ with tab5:
         hovertemplate="<b>%{y}</b><br>%{x}<br>Alert: %{z:.0f}<extra></extra>",
         colorbar=dict(title="Alert", tickvals=[0, 1, 2], ticktext=["Typical", "Heightened", "Critical"]),
     ))
-    fig2.update_layout(
+    fig_hm.update_layout(
         title=f"JMR Alert Levels by County ({latest_alert_date.date()})",
         xaxis_title="Indicator", yaxis_title="County",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
         font_color="white",
         height=700,
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig_hm, use_container_width=True)
 
     st.markdown(f"""
     <div style="display:flex; gap:24px; justify-content:center; flex-wrap:wrap;">
-        <span style="color:{SAFE};">🟢 Typical (0)</span>
-        <span style="color:{WARNING};">🟡 Heightened (1)</span>
-        <span style="color:{DANGER};">🔴 Critical (2)</span>
+        <span style="color:{SAFE};">Typical (0)</span>
+        <span style="color:{WARNING};">Heightened (1)</span>
+        <span style="color:{DANGER};">Critical (2)</span>
     </div>
     """, unsafe_allow_html=True)
