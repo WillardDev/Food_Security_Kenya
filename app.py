@@ -363,7 +363,7 @@ with tab1:
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
         font_color="white", legend_font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
-        height=500,
+        height=600,
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -395,14 +395,26 @@ with tab1:
         textfont=dict(color="white", size=9),
         hovertemplate="<b>Year %{text}</b><br>GDP per capita: $%{x:,.0f}<br>Food Insecurity: %{y:.1f}%<extra></extra>",
     ))
+    # Add trend line
+    from numpy.polynomial import polynomial as P
+    x = corr_df["gdp_per_capita_ppp"].values
+    y = corr_df["moderate_or_severe_food_insecurity_pct"].values
+    coeffs = P.polyfit(x, y, 1)
+    x_line = np.linspace(x.min(), x.max(), 100)
+    y_line = P.polyval(x_line, coeffs)
+    fig_corr.add_trace(go.Scatter(
+        x=x_line, y=y_line, mode="lines",
+        name="Trend Line", line=dict(color="#e74c3c", width=2, dash="dash"),
+        hovertemplate="Trend<extra></extra>",
+    ))
     fig_corr.update_layout(
-        title="GDP per Capita vs Food Insecurity Rate",
+        title="GDP per Capita vs Food Insecurity Rate (with Trend Line)",
         xaxis_title="GDP per Capita (PPP, Int$)",
         yaxis_title="Food Insecurity (%)",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
         font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
-        height=450,
+        height=600,
     )
     st.plotly_chart(fig_corr, use_container_width=True)
 
@@ -462,7 +474,7 @@ with tab2:
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
         font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
-        height=500,
+        height=600,
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -503,7 +515,7 @@ with tab2:
 
     fig2.update_layout(
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
-        font_color="white", showlegend=False, height=450,
+        font_color="white", showlegend=False, height=550,
     )
     fig2.update_xaxes(gridcolor="#262730")
     fig2.update_yaxes(gridcolor="#262730")
@@ -547,9 +559,9 @@ with tab3:
         xaxis_title="Year", yaxis_title="% of population",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117", font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
-        height=500,
+        height=600,
     )
-    st.image(fig, use_container_width=True) if False else st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
     val = data["undernourishment_pct"].iloc[-1]
     year = int(data["Year"].iloc[-1])
@@ -591,7 +603,7 @@ with tab3:
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117", font_color="white",
         legend_font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
-        height=500,
+        height=600,
     )
     st.plot(fig2, use_container_width=True) if False else st.plotly_chart(fig2, use_container_width=True)
 
@@ -631,7 +643,7 @@ with tab3:
 
     fig3.update_layout(
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
-        font_color="white", showlegend=False, height=450,
+        font_color="white", showlegend=False, height=550,
     )
     fig3.update_xaxes(gridcolor="#262730")
     fig3.update_yaxes(gridcolor="#262730")
@@ -696,7 +708,7 @@ with tab4:
 
     fig.update_layout(
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
-        font_color="white", showlegend=False, height=500,
+        font_color="white", showlegend=False, height=600,
     )
     fig.update_xaxes(gridcolor="#262730")
     fig.update_yaxes(gridcolor="#262730")
@@ -738,7 +750,7 @@ with tab4:
         xaxis_title="Year", yaxis_title="GDP per capita (Int$)",
         plot_bgcolor="#0e1117", paper_bgcolor="#0e1117", font_color="white",
         xaxis=dict(gridcolor="#262730"), yaxis=dict(gridcolor="#262730"),
-        height=450,
+        height=550,
     )
     st.plotly_chart(fig2, use_container_width=True)
 
