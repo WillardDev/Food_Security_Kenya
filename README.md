@@ -276,4 +276,4 @@ All datasets are stored in the `data/` directory:
 
 The git repository intentionally tracks **only the `data/` directory and this `README.md`**.
 The dashboard code (`app.py`, `dashboard/`), the notebook (`notebooks/`), and dependency files are
-kept on disk but ignored via `.gitignore`, so the repo stays lean while the full project remains reproducible.
+kept on disk.
