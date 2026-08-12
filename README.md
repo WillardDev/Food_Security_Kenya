@@ -195,7 +195,6 @@ Both the app and the notebook present the same charts in the same order:
 ### Tab 5 — County Risk Map
 - **County Risk Choropleth Maps** — overall alert level + critical alert count
 - **County Risk Ranking** — top 15 highest-risk counties (stacked bar)
-- **Top 10 Counties** — critical vs heightened alerts (grouped bar)
 - **County × Indicator Heatmap** — alert level per indicator per county
 
 Every trend chart uses a consistent color system: **green** = acceptable, **yellow** = warning, **red** = critical. Each chart is followed by a narrative insight box explaining what the data means.
