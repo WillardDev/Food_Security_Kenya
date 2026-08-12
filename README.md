@@ -4,13 +4,14 @@ Welcome to the Food Security in Kenya End-to-End Analysis Project. This project 
 
 It pairs two complementary artifacts:
 
-- **`app.py`** — an interactive **Streamlit dashboard** that tells the full data story in five tabs.
+- **`app.py`** — an interactive **Streamlit dashboard** that tells the full data story in six tabs.
 - **`notebooks/Food_Security.ipynb`** — a reproducible **Jupyter notebook** that mirrors the exact same visualizations and order as the app.
 
 ## Table of Contents
 - [Project Objectives](#project-objectives)
 - [Repository Structure](#repository-structure)
 - [Project Overview](#project-overview)
+- [Primary Research Question](#primary-research-question)
 - [Key Findings](#key-findings)
 - [Tools & Technologies](#tools--technologies)
 - [Visualizations](#visualizations)
@@ -49,7 +50,6 @@ food_security/
 │   ├── ken_faostat_*.csv      # National-level FAOSTAT data
 │   ├── world_bank_jmr/        # County/sub-county JMR risk data (zip)
 │   └── shapefiles/            # Kenya county boundaries (GeoJSON)
-├── requirements.txt           # Pinned Python dependencies
 └── README.md
 ```
 
@@ -62,7 +62,7 @@ food_security/
 | `data.py` | Cached loading + cleaning + building of `analysis_df` and county data |
 | `insights.py` | Threshold → status color/label mapping and narrative insights |
 | `plots.py` | Pure functions that return a Plotly figure (one per chart) |
-| `tabs.py` | Composes charts + insights into the five dashboard tabs |
+| `tabs.py` | Composes charts + insights into the six dashboard tabs |
 
 ---
 
@@ -76,6 +76,17 @@ Food Security exists when all people, at all times, have physical, social, and e
 - **Access:** Can people afford and physically reach food?
 - **Utilization:** Is the food nutritious and safely prepared?
 - **Stability:** Is access to food consistent over time, or disrupted by shocks?
+
+## Primary Research Question
+
+> **Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?**
+
+In short: has Kenya's two decades of GDP growth made its people more food secure — and if not, why?
+
+The visualization that directly answers this is the **GDP per Capita vs Food Insecurity scatter plot** (Tab 1),
+which shows that higher GDP was NOT associated with lower food insecurity. The **county choropleth maps**
+(Tab 5) answer *where* the crisis is worst. See the **About & Learn** tab in the app for a full breakdown of
+every research question and which chart answers it.
 
 ## Food Security Indicators Explained
 
@@ -173,11 +184,13 @@ Kenya faces persistent food insecurity due to climate variability (droughts, flo
 
 ## Visualizations
 
-Both the app and the notebook present the same charts in the same order:
+Both the app and the notebook present the same charts in the same order. The dashboard opens with an educational first tab:
 
-### Tab 1 — Executive Summary
-- **Key Food Security Indicators Over Time** — line chart combining undernourishment, food insecurity, and energy adequacy
-- **GDP per Capita vs Food Insecurity** — scatter plot showing the paradox of growth without food security
+### Tab 0 — About & Learn
+- **What is Food Security?** — the official definition and the four pillars (Availability, Access, Utilization, Stability) explained as color-coded cards
+- **Primary Research Question** — *"Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?"*
+- **Research Questions → Visualizations** — maps each research question to the exact tab/chart that answers it
+- **Glossary of Key Terms** — plain-English explanations of every indicator and data source used
 
 ### Tab 2 — Availability
 - **Dietary Energy Supply Adequacy** — line chart vs 100% target, 95% warning, 90% critical lines
@@ -222,10 +235,13 @@ All datasets are stored in the `data/` directory:
 
 ## Running the Dashboard
 
+> **Note:** `requirements.txt` was removed to keep the repository to data and documentation only.
+> Install the Python packages the project needs with:
+
 1. Install dependencies:
 
    ```bash
-   pip install -r requirements.txt
+   pip install streamlit pandas numpy matplotlib seaborn geopandas plotly jupyter
    ```
 
 2. Launch the Streamlit app from the project root:
@@ -247,9 +263,17 @@ All datasets are stored in the `data/` directory:
 
 ## Future Enhancements
 
-- Deploy the Streamlit dashboard to the cloud (Streamlit Community Cloud / Hugging Face Spaces).
+- Deploy the Streamlit dashboard to the cloud (Streamlit Community Cloud / Hugging Face Spaces) — note that deployment will require regenerating a `requirements.txt` (e.g. `pip freeze > requirements.txt`).
 - Add a conversational AI agent to answer questions about food security in Kenya.
 - Integrate real-time climate data (rainfall, NDVI) for predictive modeling.
 - Automate daily/weekly data pipeline updates.
 - Add county-level time-series forecasting for risk prediction.
 - Partner with NGOs for data validation and ground-truthing.
+
+---
+
+## Repository Contents
+
+The git repository intentionally tracks **only the `data/` directory and this `README.md`**.
+The dashboard code (`app.py`, `dashboard/`), the notebook (`notebooks/`), and dependency files are
+kept on disk but ignored via `.gitignore`, so the repo stays lean while the full project remains reproducible.
