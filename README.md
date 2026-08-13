@@ -36,21 +36,21 @@ It pairs two complementary artifacts:
 
 ```
 food_security/
-├── app.py                     # Streamlit entry point (thin orchestration layer)
-├── dashboard/                 # Modular Python package imported by app.py
+├── app.py                     
+├── dashboard/                 
 │   ├── __init__.py
-│   ├── config.py              # Colors, thresholds, indicator metadata, CSS
-│   ├── data.py                # Data loading, cleaning, and building
-│   ├── insights.py            # Status logic and narrative insight text
-│   ├── plots.py               # All chart-building functions (one per chart)
-│   └── tabs.py                # Tab renderers (Executive, Availability, Access,
-│                              #   Child Nutrition, County Risk Map)
+│   ├── config.py              
+│   ├── data.py                
+│   ├── insights.py            
+│   ├── plots.py               
+│   └── tabs.py                
+│                            
 ├── notebooks/
-│   └── Food_Security.ipynb    # Full analysis, mirroring the app's charts
+│   └── Food_Security.ipynb    
 ├── data/
-│   ├── ken_faostat_*.csv      # National-level FAOSTAT data
-│   ├── world_bank_jmr/        # County/sub-county JMR risk data (zip)
-│   └── shapefiles/            # Kenya county boundaries (GeoJSON)
+│   ├── ken_faostat_*.csv      
+│   ├── world_bank_jmr/        
+│   └── shapefiles/            
 └── README.md
 ```
 
