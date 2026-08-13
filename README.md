@@ -235,9 +235,6 @@ All datasets are stored in the `data/` directory:
 
 ## Running the Dashboard
 
-> **Note:** `requirements.txt` was removed to keep the repository to data and documentation only.
-> Install the Python packages the project needs with:
-
 1. Install dependencies:
 
    ```bash
