@@ -11,6 +11,7 @@ It pairs two complementary artifacts:
 - [Project Objectives](#project-objectives)
 - [Repository Structure](#repository-structure)
 - [Project Overview](#project-overview)
+- [Problem Statement](#problem-statement)
 - [Primary Research Question](#primary-research-question)
 - [Key Findings](#key-findings)
 - [Tools & Technologies](#tools--technologies)
@@ -77,6 +78,33 @@ Food Security exists when all people, at all times, have physical, social, and e
 - **Utilization:** Is the food nutritious and safely prepared?
 - **Stability:** Is access to food consistent over time, or disrupted by shocks?
 
+## Problem Statement
+
+Kenya faces persistent food insecurity due to climate variability (droughts, floods), economic shocks, displacement, and regional inequalities — particularly in arid and semi-arid lands (ASALs). This project applies data analysis to quantify and visualize these challenges.
+
+### 1. Exploratory Data Analysis (EDA)
+
+**Data Cleaning:**
+- Removed duplicate records and standardized column names across FAOSTAT and JMR datasets.
+- Handled missing values through contextual imputation or exclusion.
+- Merged JMR risk data with county boundary geometries for spatial analysis.
+
+**Key Metrics Explored:**
+- Yearly national food security indicator trends.
+- County-level food security risk distribution.
+- Cost and affordability of a healthy diet across regions.
+- Food supply quantity and population trends.
+
+### 2. Key Questions Answered
+
+- Which counties face the highest food security risk?
+- How have national food indicators changed over time?
+- Is healthy diet affordability improving or worsening?
+- Which regions require the most urgent intervention?
+- What is the relationship between economic growth (GDP) and food insecurity?
+
+---
+
 ## Primary Research Question
 
 > **Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?**
@@ -127,33 +155,6 @@ Think of food security as a four-legged stool: **Availability, Access, Utilizati
 - **Food insecurity at ~70%** — 7 out of 10 Kenyans experience some level of food anxiety or meal-skipping.
 - **~43 million Kenyans cannot afford a healthy diet** — more than half the population.
 - **Stunting at ~18%** — nearly 1 in 5 children suffer permanent growth impairment from chronic malnutrition.
-
----
-
-## Problem Statement
-
-Kenya faces persistent food insecurity due to climate variability (droughts, floods), economic shocks, displacement, and regional inequalities — particularly in arid and semi-arid lands (ASALs). This project applies data analysis to quantify and visualize these challenges.
-
-### 1. Exploratory Data Analysis (EDA)
-
-**Data Cleaning:**
-- Removed duplicate records and standardized column names across FAOSTAT and JMR datasets.
-- Handled missing values through contextual imputation or exclusion.
-- Merged JMR risk data with county boundary geometries for spatial analysis.
-
-**Key Metrics Explored:**
-- Yearly national food security indicator trends.
-- County-level food security risk distribution.
-- Cost and affordability of a healthy diet across regions.
-- Food supply quantity and population trends.
-
-### 2. Key Questions Answered
-
-- Which counties face the highest food security risk?
-- How have national food indicators changed over time?
-- Is healthy diet affordability improving or worsening?
-- Which regions require the most urgent intervention?
-- What is the relationship between economic growth (GDP) and food insecurity?
 
 ---
 
