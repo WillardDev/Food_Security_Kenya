@@ -53,18 +53,6 @@ food_security/
 │   └── shapefiles/            
 └── README.md
 ```
-
-**Why modular?** Each major concern lives in its own file inside `dashboard/`, so
-`app.py` stays short and each chart / insight is easy to find, test, and extend:
-
-| Module | Responsibility |
-|---|---|
-| `config.py` | Single source of truth for colors, thresholds, and labels |
-| `data.py` | Cached loading + cleaning + building of `analysis_df` and county data |
-| `insights.py` | Threshold → status color/label mapping and narrative insights |
-| `plots.py` | Pure functions that return a Plotly figure (one per chart) |
-| `tabs.py` | Composes charts + insights into the six dashboard tabs |
-
 ---
 
 ## Project Overview
@@ -109,8 +97,6 @@ Kenya faces persistent food insecurity due to climate variability (droughts, flo
 
 > **Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?**
 
-In short: has Kenya's two decades of GDP growth made its people more food secure — and if not, why?
-
 The visualization that directly answers this is the **GDP per Capita vs Food Insecurity scatter plot** (Tab 1),
 which shows that higher GDP was NOT associated with lower food insecurity. The **county choropleth maps**
 (Tab 5) answer *where* the crisis is worst. See the **About & Learn** tab in the app for a full breakdown of
@@ -148,14 +134,6 @@ Think of food security as a four-legged stool: **Availability, Access, Utilizati
 | **Under-5 Stunting %** | % of children under 5 too short for age (chronic malnutrition) | Lower is better; Kenya: ~18–19% |
 | **Under-5 Wasting %** | % of children under 5 dangerously thin (acute malnutrition) | Lower is better; below 5% is good |
 
-### In Plain English
-
-- **Dietary energy adequacy at ~93%** — Kenya's food supply meets about 93% of what people need, leaving a 7% gap.
-- **Undernourishment at ~30+%** — roughly 1 in 3 Kenyans doesn't get enough calories regularly.
-- **Food insecurity at ~70%** — 7 out of 10 Kenyans experience some level of food anxiety or meal-skipping.
-- **~43 million Kenyans cannot afford a healthy diet** — more than half the population.
-- **Stunting at ~18%** — nearly 1 in 5 children suffer permanent growth impairment from chronic malnutrition.
-
 ---
 
 ## Key Findings
@@ -187,31 +165,17 @@ Think of food security as a four-legged stool: **Availability, Access, Utilizati
 
 Both the app and the notebook present the same charts in the same order. The dashboard opens with an educational first tab:
 
-### Tab 0 — About & Learn
-- **What is Food Security?** — the official definition and the four pillars (Availability, Access, Utilization, Stability) explained as color-coded cards
 - **Primary Research Question** — *"Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?"*
-- **Research Questions → Visualizations** — maps each research question to the exact tab/chart that answers it
-- **Glossary of Key Terms** — plain-English explanations of every indicator and data source used
-
-### Tab 2 — Availability
-- **Dietary Energy Supply Adequacy** — line chart vs 100% target, 95% warning, 90% critical lines
-- **Food Supply Breakdown** — calories, protein, and fat per person per day (line charts with thresholds)
-
-### Tab 3 — Access & Affordability
-- **Prevalence of Undernourishment** — line chart vs 15% / 25% WHO thresholds
-- **Food Insecurity Severity** — moderate/severe vs severe line chart
-- **The Affordability Crisis** — cost of healthy diet, % cannot afford, people unable (all line charts, since they are trends)
-
-### Tab 4 — Child Nutrition
-- **Child Stunting and Wasting** — two-panel line chart with WHO thresholds
-- **GDP per Capita** — line chart providing economic context
-
-### Tab 5 — County Risk Map
-- **County Risk Choropleth Maps** — overall alert level + critical alert count
-- **County Risk Ranking** — top 15 highest-risk counties (stacked bar)
-- **County × Indicator Heatmap** — alert level per indicator per county
-
-Every trend chart uses a consistent color system: **green** = acceptable, **yellow** = warning, **red** = critical. Each chart is followed by a narrative insight box explaining what the data means.
+- **Dietary Energy Supply Adequacy**
+- **Food Supply Breakdown**
+- **Prevalence of Undernourishment**
+- **Food Insecurity Severity** 
+- **The Affordability Crisis**
+- **Child Stunting and Wasting**
+- **GDP per Capita**
+- **County Risk Choropleth Maps**
+- **County Risk Ranking**
+- **County × Indicator Heatmap**
 
 ---
 
@@ -254,9 +218,6 @@ All datasets are stored in the `data/` directory:
    jupyter notebook notebooks/Food_Security.ipynb
    ```
 
-> **Note on data paths:** The notebook lives in `notebooks/` and references its data via
-> `../data`, so both the app and the notebook resolve the same datasets.
-
 ---
 
 ## Future Enhancements
@@ -269,9 +230,3 @@ All datasets are stored in the `data/` directory:
 - Partner with NGOs for data validation and ground-truthing.
 
 ---
-
-## Repository Contents
-
-The git repository intentionally tracks **only the `data/` directory and this `README.md`**.
-The dashboard code (`app.py`, `dashboard/`), the notebook (`notebooks/`), and dependency files are
-kept on disk.
