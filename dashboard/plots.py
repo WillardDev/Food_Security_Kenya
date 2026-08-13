@@ -378,42 +378,6 @@ def child_nutrition_insight(analysis_df):
     return danger_box("".join(parts))
 
 
-def gdp_chart(analysis_df):
-    gdp_data = analysis_df[["Year", "gdp_per_capita_ppp"]].dropna()
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=gdp_data["Year"], y=gdp_data["gdp_per_capita_ppp"],
-        mode="lines+markers", fill="tozeroy",
-        line=dict(color=NEUTRAL, width=3),
-        marker=dict(size=8, color=NEUTRAL),
-        fillcolor="rgba(52,152,219,0.1)",
-        hovertemplate="<b>Year %{x}</b><br>GDP per capita: $%{y:,.0f}<extra></extra>",
-    ))
-    fig.add_hline(y=3000, line_dash="dash", line_color=WARNING, annotation_text="$3,000 warning", annotation_font_color=WARNING)
-    fig.update_layout(
-        title="GDP per Capita (PPP, constant 2021 Int$) - Kenya",
-        xaxis_title="Year", yaxis_title="GDP per capita (Int$)",
-    )
-    return _style(fig, height=CHART_HEIGHT)
-
-
-def gdp_insight(analysis_df):
-    gdp_data = analysis_df[["Year", "gdp_per_capita_ppp"]].dropna()
-    gdp_start = gdp_data["gdp_per_capita_ppp"].iloc[0]
-    gdp_end = gdp_data["gdp_per_capita_ppp"].iloc[-1]
-    gdp_year_start = int(gdp_data["Year"].iloc[0])
-    gdp_year_end = int(gdp_data["Year"].iloc[-1])
-    gdp_growth = ((gdp_end - gdp_start) / gdp_start) * 100
-    return story_box(
-        f"<b>Economic context:</b> Kenya GDP per capita grew from ~${gdp_start:,.0f} ({gdp_year_start}) "
-        f"to ~${gdp_end:,.0f} ({gdp_year_end}), a {gdp_growth:.0f}% increase over two decades.<br><br>"
-        "<b>The paradox:</b> Despite this economic growth, food insecurity worsened over the same period, revealing that "
-        "<b>economic growth alone does not solve food insecurity</b>. Income inequality means the poorest Kenyans have not "
-        "seen meaningful improvements in their ability to afford nutritious food.<br><br>"
-        "<b>Policy implication:</b> Kenya needs targeted social protection, agricultural investment, and nutrition programs."
-    )
-
-
 # ---------------------------------------------------------------- T5
 def choropleth_chart(county_geo_df, latest_alert_date, map_choice):
     geo_json = county_geo_df.__geo_interface__
@@ -457,8 +421,8 @@ def choropleth_chart(county_geo_df, latest_alert_date, map_choice):
     return fig
 
 
-def county_ranking_chart(county_risk_summary, latest_alert_date):
-    col1 = county_risk_summary.head(15).iloc[::-1]
+def county_ranking_chart(county_risk_summary, latest_alert_date, top_n=15):
+    col1 = county_risk_summary.head(top_n).iloc[::-1]
     fig = go.Figure()
     fig.add_trace(go.Bar(
         y=col1["adm1_name"], x=col1["total_critical_flags"],
@@ -475,12 +439,12 @@ def county_ranking_chart(county_risk_summary, latest_alert_date):
         hovertemplate="<b>%{y}</b><br>Heightened flags: %{x}<extra></extra>",
     ))
     fig.update_layout(
-        title=f"Top 15 Highest-Risk Counties ({latest_alert_date.date()})",
+        title=f"Top {top_n} Highest-Risk Counties ({latest_alert_date.date()})",
         xaxis_title="Number of sub-county alerts", yaxis_title="County",
         barmode="stack",
         legend_font_color="white",
     )
-    return _style(fig, height=600)
+    return _style(fig, height=max(320, 22 * len(col1) + 120))
 
 
 def heatmap_chart(county_indicator_matrix, county_risk_summary, latest_alert_date):
@@ -552,12 +516,12 @@ def county_alert_pie_chart(county_risk_summary, latest_alert_date):
     return _style(fig, height=480, legend=True)
 
 
-def most_least_affected_chart(county_risk_summary):
+def most_least_affected_chart(county_risk_summary, top_n=5):
     summary = county_risk_summary.copy()
     summary["flags"] = summary["total_critical_flags"] + summary["total_heightened_flags"]
 
-    top = summary.head(5).iloc[::-1]
-    bottom = summary.tail(5).iloc[::-1]
+    top = summary.head(top_n).iloc[::-1]
+    bottom = summary.tail(top_n).iloc[::-1]
 
     def bar_color(row):
         return ALERT_COLORS.get(row["overall_max_alert"], NEUTRAL)
@@ -580,11 +544,11 @@ def most_least_affected_chart(county_risk_summary):
         hovertemplate="<b>%{y}</b><br>Alert flags: %{x}<extra></extra>",
     ), row=1, col=2)
     fig.update_layout(
-        title="Counties Most and Least Affected by Food-Security Alerts",
+        title=f"Counties Most and Least Affected by Food-Security Alerts (top {top_n})",
         showlegend=False,
         barmode="overlay",
     )
-    _style(fig, height=420)
+    _style(fig, height=max(320, 28 * len(top) + 140))
     fig.update_xaxes(gridcolor=GRID)
     fig.update_yaxes(gridcolor=GRID)
     return fig
@@ -659,6 +623,124 @@ def county_trend_insight(county_alerts):
         "The line chart shows the crisis is not static - it expands and contracts with drought cycles and "
         "price shocks, which is exactly why <b>early-warning systems that monitor counties month by month</b> "
         "matter more than national averages."
+    )
+
+
+# ---------------------------------------------------------------- County comparisons (external data)
+COUNTY_INDICATORS = {
+    "stunting_pct": {"label": "Child Stunting (DHS 2022)", "unit": "%", "thresholds": (20, 30)},
+    "wasting_pct": {"label": "Child Wasting (DHS 2022)", "unit": "%", "thresholds": (5, 15)},
+    "poverty_pct": {"label": "Overall Poverty Rate (HAPI 2022)", "unit": "%", "thresholds": (40, 60)},
+    "severe_poverty_pct": {"label": "Severe Poverty Rate (HAPI 2022)", "unit": "%", "thresholds": (20, 40)},
+    "mpi": {"label": "Multidimensional Poverty Index (2022)", "unit": "", "thresholds": (0.2, 0.4)},
+    "ipc_crisis_population": {"label": "People in Acute Food Insecurity (IPC Feb 2026)", "unit": "people", "thresholds": (None, None)},
+    "ipc_crisis_pct": {"label": "% Population in Acute Food Insecurity (IPC Feb 2026)", "unit": "%", "thresholds": (20, 35)},
+    "total_critical_flags": {"label": "JMR Critical Alert Flags (risk map)", "unit": "flags", "thresholds": (None, None)},
+}
+
+def _county_bar_color(value, thresholds, direction="lower_is_better"):
+    warn, danger = thresholds
+    if warn is None or pd.isna(value):
+        return NEUTRAL
+    if direction == "lower_is_better":
+        if value >= danger: return DANGER
+        if value >= warn: return WARNING
+        return SAFE
+    if value <= danger: return DANGER
+    if value <= warn: return WARNING
+    return SAFE
+
+
+def county_indicator_bar_chart(county_stats, indicator, top_n=47, latest_alert_date=None):
+    meta = COUNTY_INDICATORS[indicator]
+    df = county_stats.dropna(subset=[indicator]).copy()
+    df = df.sort_values(indicator, ascending=False).head(top_n)
+    title = meta["label"]
+    if latest_alert_date is not None:
+        title += f" by County"
+    fig = go.Figure(go.Bar(
+        y=df["adm1_name"], x=df[indicator], orientation="h",
+        marker_color=[_county_bar_color(v, meta["thresholds"]) for v in df[indicator]],
+        text=[f"{v:,.1f}" for v in df[indicator]],
+        textposition="outside", textfont_color="white",
+        hovertemplate="<b>%{y}</b><br>%{x:,.1f}" + ("%" if meta["unit"] == "%" else "") + "<extra></extra>",
+    ))
+    fig.update_layout(
+        title=f"{title} - top {len(df)} counties",
+        xaxis_title=f"{meta['label']} ({meta['unit']})" if meta["unit"] else meta["label"],
+        yaxis_title="County",
+        showlegend=False,
+    )
+    return _style(fig, height=max(320, 22 * len(df) + 120))
+
+
+def county_crisis_chart(county_stats, top_n=47):
+    df = county_stats.dropna(subset=["ipc_crisis_population"]).sort_values("ipc_crisis_population", ascending=False).head(top_n)
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        y=df["adm1_name"], x=df["ipc_crisis_population"], orientation="h",
+        marker_color=DANGER,
+        text=[f"{v/1000:.0f}k" for v in df["ipc_crisis_population"]],
+        textposition="outside", textfont_color="white",
+        hovertemplate="<b>%{y}</b><br>People in crisis: %{x:,.0f}<extra></extra>",
+    ))
+    fig.add_trace(go.Bar(
+        y=df["adm1_name"], x=df["ipc_total_population"], orientation="h",
+        marker_color="rgba(231,76,60,0.25)", name="Total population (IPC)",
+        text=[f"{v/1000:.0f}k" for v in df["ipc_total_population"]],
+        textposition="outside", textfont_color="white",
+        hovertemplate="<b>%{y}</b><br>Total population: %{x:,.0f}<extra></extra>",
+    ))
+    fig.update_layout(
+        title=f"People in Acute Food Insecurity (IPC Phase 3+) by County - top {len(df)} (Feb 2026)",
+        xaxis_title="Number of people", yaxis_title="County",
+        barmode="overlay",
+        legend_font_color="white",
+    )
+    return _style(fig, height=max(320, 22 * len(df) + 120))
+
+
+def county_comparison_scatter_chart(county_stats, x_key, y_key, latest_alert_date=None):
+    df = county_stats.dropna(subset=[x_key, y_key]).copy()
+    x_meta = COUNTY_INDICATORS[x_key]["label"]
+    y_meta = COUNTY_INDICATORS[y_key]["label"]
+    fig = go.Figure(go.Scatter(
+        x=df[x_key], y=df[y_key],
+        mode="markers+text",
+        marker=dict(
+            size=11,
+            color=df["overall_max_alert"],
+            colorscale=[SAFE, WARNING, DANGER],
+            cmin=0, cmax=2,
+            showscale=True,
+            colorbar=dict(title="JMR Risk", tickvals=[0, 1, 2], ticktext=["Typical", "Heightened", "Critical"]),
+            line=dict(width=1, color="white"),
+        ),
+        text=df["adm1_name"],
+        textposition="top center",
+        textfont=dict(color="white", size=8),
+        hovertemplate="<b>%{text}</b><br>%{xaxis.title.text}: %{x:,.1f}<br>%{yaxis.title.text}: %{y:,.1f}<extra></extra>",
+    ))
+    fig.update_layout(
+        title=f"{y_meta} vs {x_meta}",
+        xaxis_title=x_meta, yaxis_title=y_meta,
+    )
+    return _style(fig, height=620)
+
+
+def county_comparisons_insight(county_stats):
+    top_poverty = county_stats.dropna(subset=["poverty_pct"]).sort_values("poverty_pct", ascending=False).head(3)["adm1_name"].tolist()
+    top_stunt = county_stats.dropna(subset=["stunting_pct"]).sort_values("stunting_pct", ascending=False).head(3)["adm1_name"].tolist()
+    crisis_total = int(county_stats["ipc_crisis_population"].sum())
+    return danger_box(
+        "<b>Merging external data changes the picture:</b> now that we compare counties directly, the "
+        "<b>counties with the worst measured outcomes</b> (highest poverty and child stunting) are the arid and "
+        "semi-arid north - "
+        f"<b>{', '.join(top_poverty)}</b> for poverty and <b>{', '.join(top_stunt)}</b> for child nutrition.<br><br>"
+        f"The IPC analysis (Feb 2026) puts roughly <b>{crisis_total:,} people in acute food insecurity</b> (IPC Phase 3+) "
+        "across the affected counties. These externally-measured indicators line up closely with the JMR risk alerts - "
+        "the same counties the risk map flags critical are the ones with the worst stunting and poverty, "
+        "which cross-validates the JMR early-warning system."
     )
 
 

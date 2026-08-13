@@ -144,6 +144,8 @@ def about():
             ("Tab 5", "Child Stunting & Wasting charts show the irreversible impact of malnutrition on under-5s."),
         "Which counties are at the highest risk and why?": 
             ("Tab 6", "The choropleth maps rank counties by overall alert and critical flags; the heatmap shows WHICH indicator is driving each county's risk. The executive summary (Tab 2) adds a county-by-county snapshot and the pie chart showing how many counties are at risk."),
+        "Do the risk alerts match what is actually measured in each county?": 
+            ("Tab 7", "County Comparisons merges external data - DHS child stunting/wasting, poverty rates, and IPC crisis populations - with the JMR alerts. The bar charts rank all 47 counties; the cross-check scatter colors each county by its JMR alert to see whether measured outcomes line up with the early-warning system."),
     }
     for q, (where, viz) in q_rows.items():
         section(SAFE, "Question", f"<b>{q}</b><br><span style='color:#888;'><b>Where:</b> {where}</span><br>{viz}")
@@ -251,7 +253,8 @@ def tab1(analysis_df, county_risk_summary, latest_alert_date):
     with col_left:
         st.plotly_chart(plots.county_alert_pie_chart(county_risk_summary, latest_alert_date), use_container_width=True)
     with col_right:
-        st.plotly_chart(plots.most_least_affected_chart(county_risk_summary), use_container_width=True)
+        ml_n = st.slider("Counties to show in most/least:", min_value=3, max_value=20, value=5, step=1)
+        st.plotly_chart(plots.most_least_affected_chart(county_risk_summary, top_n=ml_n), use_container_width=True)
     st.markdown(plots.county_snapshot_insight(county_risk_summary, latest_alert_date), unsafe_allow_html=True)
 
 
@@ -345,15 +348,6 @@ def tab4(analysis_df):
     st.plotly_chart(plots.child_nutrition_chart(analysis_df), use_container_width=True)
     st.markdown(plots.child_nutrition_insight(analysis_df), unsafe_allow_html=True)
 
-    st.subheader("Economic Context - GDP per Capita")
-    st.markdown("""
-    Economic growth should theoretically improve food access. Kenya GDP per capita (PPP) has grown
-    from ~$3,700 (2000) to ~$5,800 (2024), but food insecurity has worsened, showing that
-    <b>growth alone does not solve food insecurity</b> without equitable distribution.
-    """)
-    st.plotly_chart(plots.gdp_chart(analysis_df), use_container_width=True)
-    st.markdown(plots.gdp_insight(analysis_df), unsafe_allow_html=True)
-
 
 def tab5(county_alerts, county_risk_summary, county_geo_df, latest_alert_date):
     st.header("County Risk Map - Where Is the Crisis Worst?")
@@ -399,7 +393,8 @@ def tab5(county_alerts, county_risk_summary, county_geo_df, latest_alert_date):
 
     col1, col2 = st.columns([2, 1])
     with col1:
-        st.plotly_chart(plots.county_ranking_chart(county_risk_summary, latest_alert_date), use_container_width=True)
+        rank_n = st.slider("Number of counties in the ranking:", min_value=5, max_value=47, value=15, step=1)
+        st.plotly_chart(plots.county_ranking_chart(county_risk_summary, latest_alert_date, top_n=rank_n), use_container_width=True)
     with col2:
         st.markdown("### Alert Summary")
         alert_counts = county_risk_summary["overall_alert_label"].value_counts()
@@ -445,6 +440,69 @@ def tab5(county_alerts, county_risk_summary, county_geo_df, latest_alert_date):
         <span style="color:{DANGER};">Critical (2)</span>
     </div>
     """, unsafe_allow_html=True)
+
+
+def tab6(county_stats, latest_alert_date):
+    st.header("County Comparisons - Measured Outcomes vs Risk Alerts")
+    st.markdown("""
+    <div class="story-box">
+    This tab merges <b>externally-measured county data</b> with the JMR risk alerts so all 47 counties can be
+    compared directly - no national averages, one bar per county:
+    - <b>Child nutrition</b> - stunting & wasting (Kenya DHS 2022)
+    - <b>Poverty</b> - overall & severe poverty rates and the Multidimensional Poverty Index (HAPI / World Bank 2022)
+    - <b>Acute food insecurity</b> - people in IPC Phase 3+ crisis (IPC, Feb 2026)
+    - <b>Population</b> - county populations from the JMR data
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("Compare Counties on Any Indicator")
+    st.markdown("""
+    Select an indicator below - every county gets its own bar, so you can see the full spread from least
+    to most affected instead of a single national line.
+    """)
+
+    ctl1, ctl2 = st.columns([2, 1])
+    with ctl1:
+        indicator = st.selectbox(
+            "Choose an indicator to compare:",
+            list(plots.COUNTY_INDICATORS.keys()),
+            format_func=lambda k: plots.COUNTY_INDICATORS[k]["label"],
+        )
+    with ctl2:
+        top_n = st.slider("Number of counties to show:", min_value=5, max_value=47, value=47, step=1)
+    st.plotly_chart(plots.county_indicator_bar_chart(county_stats, indicator, top_n=top_n), use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("People in Acute Food Insecurity by County")
+    st.markdown("""
+    The IPC analysis counts how many people in each county are in Phase 3+ (crisis) - the people who need help
+    right now. The light bar is the county's total population; the red bar is the population in crisis.
+    """)
+    st.plotly_chart(plots.county_crisis_chart(county_stats, top_n=top_n), use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("Cross-Check: Do the Measures Agree?")
+    st.markdown("""
+    Pick any two indicators and compare them county by county. Each point is a county, colored by its JMR risk
+    alert (green = typical, yellow = heightened, red = critical). If the externally-measured outcomes line up
+    with the risk alerts, the early-warning system is doing its job.
+    """)
+    col1, col2 = st.columns(2)
+    with col1:
+        x_key = st.selectbox(
+            "X axis (lower = less affected):", list(plots.COUNTY_INDICATORS.keys()), index=2,
+            format_func=lambda k: plots.COUNTY_INDICATORS[k]["label"],
+        )
+    with col2:
+        y_key = st.selectbox(
+            "Y axis (lower = less affected):", list(plots.COUNTY_INDICATORS.keys()), index=0,
+            format_func=lambda k: plots.COUNTY_INDICATORS[k]["label"],
+        )
+    if x_key == y_key:
+        st.info("Pick two different indicators to compare. Right now both axes are the same measure.")
+    else:
+        st.plotly_chart(plots.county_comparison_scatter_chart(county_stats, x_key, y_key), use_container_width=True)
+        st.markdown(plots.county_comparisons_insight(county_stats), unsafe_allow_html=True)
 
 
 def tab7(analysis_df, county_risk_summary, latest_alert_date):

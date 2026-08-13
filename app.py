@@ -4,7 +4,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from dashboard.config import SAFE, WARNING, DANGER, CSS
-from dashboard.data import load_all, build_analysis_df, build_county_data
+from dashboard.data import load_all, build_analysis_df, build_county_data, load_county_external, build_county_stats
 from dashboard import tabs
 
 st.set_page_config(
@@ -27,6 +27,8 @@ with st.spinner("Loading data..."):
     county_alerts, county_risk_summary, county_geo_df, latest_alert_date = build_county_data(
         jmr_data, jmr_pcodes, kenya_counties
     )
+    county_external = load_county_external()
+    county_stats = build_county_stats(county_risk_summary, county_external)
 
 with st.sidebar:
     st.header("Dashboard Controls")
@@ -42,9 +44,10 @@ with st.sidebar:
     st.markdown("- **Coverage**: 47 counties, 6+ risk indicators")
     st.markdown("- **Learn**: See the *About & Learn* tab for terms and research questions")
 
-tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "About & Learn", "Problem Statement", "Executive Summary", "Availability",
-    "Access and Affordability", "Child Nutrition", "County Risk Map", "Conclusion & Way Forward",
+    "Access and Affordability", "Child Nutrition", "County Risk Map",
+    "County Comparisons", "Conclusion & Way Forward",
 ])
 
 with tab0:
@@ -69,6 +72,9 @@ with tab6:
     tabs.tab5(county_alerts, county_risk_summary, county_geo_df, latest_alert_date)
 
 with tab7:
+    tabs.tab6(county_stats, latest_alert_date)
+
+with tab8:
     tabs.tab7(analysis_df, county_risk_summary, latest_alert_date)
 
 st.markdown('<a href="#top" class="back-to-top" title="Back to top">&#8593;</a>', unsafe_allow_html=True)

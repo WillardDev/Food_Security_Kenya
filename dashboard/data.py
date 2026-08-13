@@ -4,6 +4,13 @@ import pandas as pd
 
 from dashboard.config import KEYS, DATA_DIR, JMR_DIR, SHAPEFILE_DIR, ALERT_LABELS
 
+COUNTY_NAME_FIXES = {
+    "Elgeyo Marakwet": "Elgeyo-Marakwet",
+    "Trans-Nzoia": "Trans Nzoia",
+    "Tharaka Nithi": "Tharaka-Nithi",
+}
+NON_COUNTY_AREAS = ["Dadaab", "Kakuma", "Kalobeyei"]
+
 
 @st.cache_data
 def load_all():
@@ -96,4 +103,69 @@ def build_county_data(jmr_data, jmr_pcodes, _kenya_counties):
 
     geo = _kenya_counties.merge(summary, on="adm1_pcode", how="left")
     geo = gpd.GeoDataFrame(geo, geometry="geometry", crs=_kenya_counties.crs)
+
+    pop_rows = jmr_admin[jmr_admin["grouping"].eq("Population")].copy()
+    if not pop_rows.empty:
+        county_pop = (
+            pop_rows.groupby(["adm1_name", "adm2_pcode"])["value"].max()
+            .groupby("adm1_name").sum().rename("population")
+        )
+        summary = summary.merge(county_pop, on="adm1_name", how="left")
+
     return county_alerts, summary, geo, latest_date
+
+
+@st.cache_data
+def load_county_external():
+    dhs = pd.read_csv(DATA_DIR / "kenya_dhs_nutrition_county.csv")
+    pov = pd.read_csv(DATA_DIR / "kenya_poverty_rate_county.csv")
+    ipc = pd.read_csv(DATA_DIR / "kenya_ipc_area_long_latest.csv")
+
+    def fix_names(series):
+        return series.str.strip().replace(COUNTY_NAME_FIXES)
+
+    # DHS 2022 - county-level child stunting & wasting (%)
+    d22 = dhs[dhs["SurveyYear"] == 2022].copy()
+    is_county = d22["CharacteristicLabel"].str.startswith("..") | (d22["CharacteristicLabel"] == "Nairobi")
+    d22 = d22[is_county & d22["Indicator"].isin(["Children stunted", "Children wasted"])]
+    d22["county"] = fix_names(d22["CharacteristicLabel"].str.lstrip("."))
+    nutrition = d22.pivot_table(index="county", columns="Indicator", values="Value", aggfunc="first").reset_index()
+    nutrition = nutrition.rename(columns={"Children stunted": "stunting_pct", "Children wasted": "wasting_pct"})
+
+    # HAPI poverty - county level, latest round (2022)
+    povc = pov[(pov["admin_level"] == 1) & (pov["reference_period_end"] == pov["reference_period_end"].max())]
+    povc = povc.dropna(subset=["admin1_name"]).copy()
+    povc["county"] = fix_names(povc["admin1_name"])
+    povc["self_provided"] = povc["provider_admin1_name"].fillna("").eq(povc["admin1_name"])
+    povc = povc.sort_values("self_provided", ascending=False).drop_duplicates(subset="county", keep="first")
+    poverty = povc[["county", "mpi", "headcount_ratio", "vulnerable_to_poverty", "in_severe_poverty"]].rename(
+        columns={
+            "headcount_ratio": "poverty_pct",
+            "vulnerable_to_poverty": "vulnerable_to_poverty_pct",
+            "in_severe_poverty": "severe_poverty_pct",
+        }
+    )
+
+    # IPC latest analysis - population in acute food insecurity (phase 3+) by county
+    ipc_cur = ipc[ipc["Validity period"] == "current"].copy()
+    ipc_cur["county"] = fix_names(ipc_cur["Area"])
+    ipc_cur = ipc_cur[~ipc_cur["county"].isin(NON_COUNTY_AREAS)]
+    crisis = ipc_cur[ipc_cur["Phase"] == "3+"][["county", "Number", "Percentage"]].rename(
+        columns={"Number": "ipc_crisis_population", "Percentage": "ipc_crisis_pct"}
+    )
+    total = ipc_cur[ipc_cur["Phase"] == "all"][["county", "Number"]].rename(
+        columns={"Number": "ipc_total_population"}
+    )
+    ipc_pivot = total.merge(crisis, on="county", how="outer")
+    ipc_pivot["ipc_crisis_pct"] = ipc_pivot["ipc_crisis_pct"] * 100
+
+    merged = poverty.merge(nutrition, on="county", how="outer").merge(ipc_pivot, on="county", how="outer")
+    return merged
+
+
+@st.cache_data
+def build_county_stats(county_risk_summary, county_external):
+    stats = county_risk_summary.merge(
+        county_external, left_on="adm1_name", right_on="county", how="left"
+    ).drop(columns="county", errors="ignore")
+    return stats

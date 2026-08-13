@@ -49,6 +49,9 @@ food_security/
 │   └── Food_Security.ipynb    
 ├── data/
 │   ├── ken_faostat_*.csv      
+│   ├── kenya_dhs_nutrition_county.csv   
+│   ├── kenya_poverty_rate_county.csv     
+│   ├── kenya_ipc_area_long_latest.csv    
 │   ├── world_bank_jmr/        
 │   └── shapefiles/            
 └── README.md
@@ -166,21 +169,24 @@ Think of food security as a four-legged stool: **Availability, Access, Utilizati
 Both the app and the notebook present the same charts in the same order. The dashboard opens with an educational first tab:
 
 - **Primary Research Question** — *"Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?"*
-- **Problem Statement** — the paradox of growth without food security (Tab 1)
-- **Key Indicators Over Time** — the big-picture line chart (Tab 2)
-- **GDP per Capita vs Food Insecurity** — scatter proving growth did NOT lower food insecurity (Tab 2)
-- **County Risk Pie + Most/Least Affected** — a donut of how many of Kenya's 47 counties are at critical/heightened/typical risk, plus a most-affected vs least-affected county bar chart (Tab 2)
+- **Problem Statement**
+- **Key Indicators Over Time**
+- **GDP per Capita vs Food Insecurity**
+- **County Risk Pie + Most/Least Affected**
 - **Dietary Energy Supply Adequacy**
 - **Food Supply Breakdown**
 - **Prevalence of Undernourishment**
 - **Food Insecurity Severity** 
 - **The Affordability Crisis**
 - **Child Stunting and Wasting**
-- **GDP per Capita**
-- **Counties at Risk Over Time** — county-specific line chart: how many of the 47 counties were at risk each month (2010-2026) (Tab 6)
+- **Counties at Risk Over Time**
 - **County Risk Choropleth Maps**
 - **County Risk Ranking**
 - **County × Indicator Heatmap**
+- **County Comparisons (Tab 7)**
+  - **Indicator bar charts**
+  - **People in acute food insecurity**
+  - **Cross-check scatter**
 
 ---
 
@@ -196,6 +202,9 @@ All datasets are stored in the `data/` directory:
 | `KEN_JMR_data.zip` | Monthly admin-level food security risk indicators | [World Bank JMR](https://microdata.worldbank.org/catalog/8115) |
 | `KEN_JMR_pcodes.zip` | Admin-level geographic codes for joining JMR data to counties | [World Bank JMR](https://microdata.worldbank.org/catalog/8115) |
 | `kenya_counties.geojson` | Kenya county boundary polygons for mapping | GeoPandas compatible |
+| `kenya_dhs_nutrition_county.csv` | County-level child stunting & wasting (DHS 2022) | [HDX / DHS](https://data.humdata.org/dataset/dhs-subnational-data-for-kenya) |
+| `kenya_poverty_rate_county.csv` | County-level poverty rates, MPI & severe poverty (2022) | [HDX / HAPI](https://data.humdata.org/dataset/hdx-hapi-ken) |
+| `kenya_ipc_area_long_latest.csv` | County-level IPC acute food insecurity (people in Phase 3+, Feb 2026) | [HDX / IPC](https://data.humdata.org/dataset/kenya-acute-food-insecurity-country-data) |
 
 **What is FAOSTAT?** The Food and Agriculture Organization Corporate Statistical Database — the UN's primary source for food and agriculture statistics across countries.
 
