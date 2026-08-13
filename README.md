@@ -166,6 +166,10 @@ Think of food security as a four-legged stool: **Availability, Access, Utilizati
 Both the app and the notebook present the same charts in the same order. The dashboard opens with an educational first tab:
 
 - **Primary Research Question** — *"Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?"*
+- **Problem Statement** — the paradox of growth without food security (Tab 1)
+- **Key Indicators Over Time** — the big-picture line chart (Tab 2)
+- **GDP per Capita vs Food Insecurity** — scatter proving growth did NOT lower food insecurity (Tab 2)
+- **County Risk Pie + Most/Least Affected** — a donut of how many of Kenya's 47 counties are at critical/heightened/typical risk, plus a most-affected vs least-affected county bar chart (Tab 2)
 - **Dietary Energy Supply Adequacy**
 - **Food Supply Breakdown**
 - **Prevalence of Undernourishment**
@@ -173,6 +177,7 @@ Both the app and the notebook present the same charts in the same order. The das
 - **The Affordability Crisis**
 - **Child Stunting and Wasting**
 - **GDP per Capita**
+- **Counties at Risk Over Time** — county-specific line chart: how many of the 47 counties were at risk each month (2010-2026) (Tab 6)
 - **County Risk Choropleth Maps**
 - **County Risk Ranking**
 - **County × Indicator Heatmap**
