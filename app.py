@@ -17,8 +17,7 @@ st.markdown('<a id="top" style="position:absolute;"></a>', unsafe_allow_html=Tru
 
 st.markdown(CSS, unsafe_allow_html=True)
 
-st.title("Food Security in Kenya - A Data Story")
-st.markdown("*An interactive analysis of national trends, county risk, and the affordability crisis threatening millions of Kenyans.*")
+st.title("Food Security in Kenya")
 st.markdown("---")
 
 with st.spinner("Loading data..."):
@@ -42,39 +41,33 @@ with st.sidebar:
     st.markdown("- **FAOSTAT**: UN FAO national statistics (2000-2025)")
     st.markdown("- **World Bank JMR**: County/sub-county risk (2010-2026)")
     st.markdown("- **Coverage**: 47 counties, 6+ risk indicators")
-    st.markdown("- **Learn**: See the *About & Learn* tab for terms and research questions")
+    st.markdown("- **Learn**: See the *About* tab for terms and research questions")
 
-tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
-    "About & Learn", "Problem Statement", "Executive Summary", "Availability",
-    "Access and Affordability", "Child Nutrition", "County Risk Map",
-    "County Comparisons", "Conclusion & Way Forward",
+tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "About",
+    "Executive Summary",
+    "Act 1 · Availability",
+    "Act 2 · Access & Child Nutrition",
+    "Act 3 · County Risk & Comparisons",
+    "Conclusion & Way Forward",
 ])
 
 with tab0:
     tabs.about()
 
 with tab1:
-    tabs.problem_statement()
+    tabs.executive_summary(analysis_df, county_risk_summary, latest_alert_date)
 
 with tab2:
-    tabs.tab1(analysis_df, county_risk_summary, latest_alert_date)
+    tabs.act1_availability(analysis_df)
 
 with tab3:
-    tabs.tab2(analysis_df)
+    tabs.act2_access_nutrition(analysis_df, county_stats)
 
 with tab4:
-    tabs.tab3(analysis_df)
+    tabs.act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stats, latest_alert_date)
 
 with tab5:
-    tabs.tab4(analysis_df)
-
-with tab6:
-    tabs.tab5(county_alerts, county_risk_summary, county_geo_df, latest_alert_date)
-
-with tab7:
-    tabs.tab6(county_stats, latest_alert_date)
-
-with tab8:
-    tabs.tab7(analysis_df, county_risk_summary, latest_alert_date)
+    tabs.conclusion_tab(analysis_df, county_risk_summary, latest_alert_date)
 
 st.markdown('<a href="#top" class="back-to-top" title="Back to top">&#8593;</a>', unsafe_allow_html=True)

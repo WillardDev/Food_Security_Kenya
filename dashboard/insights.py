@@ -82,15 +82,3 @@ def insight_text(indicator, value, year):
         },
     }
     return texts.get(indicator, {}).get(severity, f"Value: {value:.1f} ({severity})")
-
-
-def story_box(body):
-    return f'<div class="story-box">{body}</div>'
-
-
-def danger_box(body):
-    return f'<div class="danger-box">{body}</div>'
-
-
-def success_box(body):
-    return f'<div class="success-box">{body}</div>'

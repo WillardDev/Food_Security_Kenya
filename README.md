@@ -4,7 +4,7 @@ Welcome to the Food Security in Kenya End-to-End Analysis Project. This project 
 
 It pairs two complementary artifacts:
 
-- **`app.py`** — an interactive **Streamlit dashboard** that tells the full data story in six tabs.
+- **`app.py`** — an interactive **Streamlit dashboard** that tells the full data story in nine tabs.
 - **`notebooks/Food_Security.ipynb`** — a reproducible **Jupyter notebook** that mirrors the exact same visualizations and order as the app.
 
 ## Table of Contents
@@ -96,13 +96,32 @@ Kenya faces persistent food insecurity due to climate variability (droughts, flo
 
 ---
 
+## The Data Story
+
+The dashboard is deliberately shaped as a narrative, following the principles of *Storytelling with Data*
+(Cole Nussbaumer Knaflic): one **Big Idea**, repeated across every tab, told in **three acts**.
+
+**The Big Idea:** Kenya grows enough food for everyone, yet two decades of economic growth have not ended
+hunger — because the crisis is *affordability, not scarcity*, and its worst face is *children* and *specific counties*.
+
+| Act | Story beat | Tabs | What the viewer learns |
+|---|---|---|---|
+| **Act 1 · The Setup** | "Kenya has enough food." | Availability | Energy adequacy ~93% — this is not a famine |
+| **Act 2 · The Conflict** | "…but people can't afford it." | Executive Summary, Access, Child Nutrition | Affordability vs GDP; children bear the cost |
+| **Act 3 · The Resolution** | "…and it's worst in these places." | County Risk, County Comparisons, Conclusion | Identify hotspots, verify the alerts, act |
+
+Every tab opens with an act banner and a recurring Big Idea reminder ("tell 'em, tell 'em, tell 'em"); the
+Executive Summary is the *Bing* (what you'll tell them) and the Conclusion is the *Bongo* (what you told them).
+Charts use preattentive color (the story-critical series is red), direct labels instead of legend lookups,
+threshold reference lines with shaded critical zones, and no chart border or vertical gridlines (clutter is the enemy).
+
 ## Primary Research Question
 
 > **Why does economic growth in Kenya not translate into improved food security, and where is the crisis worst?**
 
 The visualization that directly answers this is the **GDP per Capita vs Food Insecurity scatter plot** (Tab 1),
 which shows that higher GDP was NOT associated with lower food insecurity. The **county choropleth maps**
-(Tab 5) answer *where* the crisis is worst. See the **About & Learn** tab in the app for a full breakdown of
+(Tab 5) answer *where* the crisis is worst. See the **About** tab in the app for a full breakdown of
 every research question and which chart answers it.
 
 ## Food Security Indicators Explained

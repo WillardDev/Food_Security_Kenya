@@ -52,10 +52,19 @@ INDICATOR_META = {
 CHART_HEIGHT = 550
 BG = "#0e1117"
 GRID = "#262730"
+GRID_SOFT = "rgba(255,255,255,0.14)"
+
+BIG_IDEA = (
+    "**The big idea:** Kenya grows enough food for everyone, yet two decades of economic growth "
+    "have not ended hunger \u2014 because the crisis is affordability, not scarcity, and its worst "
+    "face is children and specific counties."
+)
 
 CSS = """
 <style>
     .main { background-color: #0e1117; scroll-behavior: smooth; }
+    .main h1 { text-align: center; }
+    .main p { text-align: justify; }
     .stTabs [data-baseweb="tab-list"] { gap: 8px; }
     .stTabs [data-baseweb="tab-list"] {
         position: sticky;
@@ -91,21 +100,5 @@ CSS = """
         cursor: pointer;
     }
     .back-to-top:hover { filter: brightness(1.15); }
-    .metric-card {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border-radius: 12px; padding: 20px; margin: 8px 0; border-left: 4px solid;
-    }
-    .story-box {
-        background: #1a1a2e; border-radius: 8px; padding: 16px 20px;
-        margin: 12px 0; border-left: 3px solid #3498db; color: #ddd; line-height: 1.6;
-    }
-    .danger-box {
-        background: #2e1a1a; border-radius: 8px; padding: 16px 20px;
-        margin: 12px 0; border-left: 3px solid #e74c3c; color: #ddd; line-height: 1.6;
-    }
-    .success-box {
-        background: #1a2e1a; border-radius: 8px; padding: 16px 20px;
-        margin: 12px 0; border-left: 3px solid #2ecc71; color: #ddd; line-height: 1.6;
-    }
 </style>
 """
