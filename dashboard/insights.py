@@ -17,6 +17,7 @@ def status_color(value, indicator):
         else: return SAFE
 
 
+
 def status_label(value, indicator):
     if indicator not in THRESHOLDS or pd.isna(value):
         return "No data"
