@@ -728,12 +728,22 @@ def county_indicator_insight(county_stats, indicator):
             f"{n_above_danger} counties exceed the 15% critical threshold and need life-saving "
             "therapeutic feeding now."
         ),
+        "poverty_pct": (
+            f"Poverty is the root cause that makes food unaffordable even when it is available. "
+            f"{n_above_danger} counties exceed the 60% poverty threshold and {n_above_warn} exceed 40%, "
+            "concentrated in the same arid and semi-arid areas flagged by the JMR risk maps."
+        ),
+        "severe_poverty_pct": (
+            f"Severe poverty indicates households that cannot meet basic needs. "
+            f"{n_above_danger} counties exceed the 40% severe-poverty threshold, "
+            "meaning nearly half the population in those counties lives in extreme deprivation."
+        ),
     }
     note = notes.get(indicator, "")
     return (
         f"For {meta['label']}, the worst-affected county is {worst_name} at {worst:.1f}%, followed by "
         f"{', '.join(top3[1:])}; the county with the lowest rate is {best_name} at {best:.1f}%. {note} The wide "
-        "spread between counties shows child malnutrition is not a uniform national problem but a geographically "
+        "spread between counties shows this is not a uniform national problem but a geographically "
         "concentrated one, which is exactly why county-level targeting matters."
     )
 

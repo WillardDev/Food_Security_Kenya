@@ -246,23 +246,26 @@ def act2_access_nutrition(analysis_df, county_stats):
     st.plotly_chart(plots.child_nutrition_chart(analysis_df), use_container_width=True, key="chart_child_nutrition")
     st.markdown(plots.child_nutrition_insight(analysis_df))
 
-    st.markdown("### Child Stunting and Wasting by County")
-    st.markdown("National trends hide the counties that are struggling. These bar charts rank every county with DHS "
-                "2022 data from worst to best, so you can see at a glance which counties need help most and which are "
-                "succeeding.")
+    st.markdown("### Child Malnutrition by County")
+    st.markdown("National trends hide the counties that are struggling. Select an indicator below - every county "
+                "gets its own bar, and the insight updates to match your selection. Counties are ranked from worst "
+                "to best using DHS 2022 data.")
 
-    county_top_n = st.slider("Number of counties to show:", min_value=5, max_value=47, value=47, step=1,
-                             key="slider_county_top_n")
-
-    st.markdown("#### Child Stunting by County")
-    st.plotly_chart(plots.county_indicator_bar_chart(county_stats, "stunting_pct", top_n=county_top_n),
-                    use_container_width=True, key="chart_stunting_county")
-    st.markdown(plots.county_indicator_insight(county_stats, "stunting_pct"))
-
-    st.markdown("#### Child Wasting by County")
-    st.plotly_chart(plots.county_indicator_bar_chart(county_stats, "wasting_pct", top_n=county_top_n),
-                    use_container_width=True, key="chart_wasting_county")
-    st.markdown(plots.county_indicator_insight(county_stats, "wasting_pct"))
+    child_indicators = {k: plots.COUNTY_INDICATORS[k] for k in ["stunting_pct", "wasting_pct"]}
+    ctl1, ctl2 = st.columns([2, 1])
+    with ctl1:
+        child_indicator = st.selectbox(
+            "Choose an indicator to compare:",
+            list(child_indicators.keys()),
+            format_func=lambda k: child_indicators[k]["label"],
+            key="select_child_indicator",
+        )
+    with ctl2:
+        county_top_n = st.slider("Number of counties to show:", min_value=5, max_value=47, value=47, step=1,
+                                 key="slider_county_top_n")
+    st.plotly_chart(plots.county_indicator_bar_chart(county_stats, child_indicator, top_n=county_top_n),
+                    use_container_width=True, key="chart_child_county")
+    st.markdown(plots.county_indicator_insight(county_stats, child_indicator))
 
 
 def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stats, latest_alert_date):
@@ -271,8 +274,8 @@ def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stat
         "",
         "The Resolution: Finding the Hotspots",
         "National averages hide where the crisis actually bites. Act 3 zooms into Kenya's 47 counties to find who "
-        "needs help first, compares them on measured outcomes like child stunting and wasting, and turns the story "
-        "into a way forward in the final tab.",
+        "needs help first, maps the risk drivers (drought, prices, conflict), and compares counties on poverty "
+        "and acute food insecurity to turn the story into a way forward in the final tab.",
     )
 
     st.subheader("Where Is the Crisis Worst? - County Risk Map")
@@ -332,36 +335,35 @@ def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stat
     st.markdown(plots.heatmap_insight(county_risk_summary))
 
     st.markdown("---")
-    st.subheader("County Comparisons - Child Malnutrition by County")
-    st.markdown("This section merges externally measured county data with the JMR risk alerts so counties can be "
-                "compared directly - no national averages, one bar per county. It focuses on the two child "
-                "nutrition indicators, stunting and wasting (Kenya DHS 2022), because they are the clearest "
-                "measured signal of where the crisis is hurting children.")
+    st.subheader("County Comparisons - Poverty by County")
+    st.markdown("This section merges externally measured county poverty data with the JMR risk alerts so counties "
+                "can be compared directly - no national averages, one bar per county. Poverty is the underlying "
+                "driver that makes food unaffordable even when it is available.")
 
-    st.markdown("#### Compare Counties on Child Stunting or Wasting")
+    st.markdown("#### Compare Counties on Poverty or Severe Poverty")
     st.markdown("Select an indicator below - every county gets its own bar, and the insight below the chart updates "
                 "to match your selection.")
 
-    child_indicators = {k: plots.COUNTY_INDICATORS[k] for k in ["stunting_pct", "wasting_pct"]}
-    ctl1, ctl2 = st.columns([2, 1])
-    with ctl1:
-        indicator = st.selectbox(
+    poverty_indicators = {k: plots.COUNTY_INDICATORS[k] for k in ["poverty_pct", "severe_poverty_pct"]}
+    pctl1, pctl2 = st.columns([2, 1])
+    with pctl1:
+        pov_indicator = st.selectbox(
             "Choose an indicator to compare:",
-            list(child_indicators.keys()),
-            format_func=lambda k: child_indicators[k]["label"],
-            key="select_indicator",
+            list(poverty_indicators.keys()),
+            format_func=lambda k: poverty_indicators[k]["label"],
+            key="select_pov_indicator",
         )
-    with ctl2:
-        top_n = st.slider("Number of counties to show:", min_value=5, max_value=47, value=47, step=1,
-                          key="slider_top_n")
-    st.plotly_chart(plots.county_indicator_bar_chart(county_stats, indicator, top_n=top_n), use_container_width=True,
-                    key="chart_indicator_select")
-    st.markdown(plots.county_indicator_insight(county_stats, indicator))
+    with pctl2:
+        pov_top_n = st.slider("Number of counties to show:", min_value=5, max_value=47, value=47, step=1,
+                              key="slider_pov_top_n")
+    st.plotly_chart(plots.county_indicator_bar_chart(county_stats, pov_indicator, top_n=pov_top_n),
+                    use_container_width=True, key="chart_pov_county")
+    st.markdown(plots.county_indicator_insight(county_stats, pov_indicator))
 
     st.markdown("#### Share of Population in Acute Food Insecurity by County")
     st.markdown("The IPC analysis measures the share of each county's population in Phase 3+ (crisis) - the people "
                 "who need help right now. Percentages make counties of very different sizes directly comparable.")
-    st.plotly_chart(plots.county_crisis_chart(county_stats, top_n=top_n), use_container_width=True,
+    st.plotly_chart(plots.county_crisis_chart(county_stats, top_n=pov_top_n), use_container_width=True,
                     key="chart_county_crisis")
     st.markdown(plots.county_crisis_insight(county_stats))
 
