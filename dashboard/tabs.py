@@ -1,7 +1,7 @@
 import streamlit as st
 
-from dashboard.config import INDICATOR_META, BIG_IDEA
-from dashboard.insights import status_label
+from dashboard.config import INDICATOR_META, BIG_IDEA, THRESHOLDS, NEUTRAL, SAFE, DANGER
+from dashboard.insights import status_label, status_color
 from dashboard import plots
 
 
@@ -103,28 +103,78 @@ def about():
                 "can decode colors instantly.")
 
 
-def metric_cards(analysis_df):
-    key_indicators = [
-        ("undernourishment_pct", "Undernourishment"),
-        ("moderate_or_severe_food_insecurity_pct", "Food Insecurity"),
-        ("healthy_diet_unaffordable_pct", "Cannot Afford Healthy Diet"),
-        ("under5_stunting_pct", "Child Stunting"),
-        ("dietary_energy_adequacy_pct", "Energy Adequacy"),
-        ("undernourished_people_million", "People Undernourished"),
+def _kpi_card_html(analysis_df, ind, lookback=10):
+    df = analysis_df.dropna(subset=[ind]).sort_values("Year")
+    if df.empty:
+        return None
+    latest = df.iloc[-1]
+    val = latest[ind]
+    year = int(latest["Year"])
+    base = df[df["Year"] <= year - lookback]
+    baseline = base.iloc[-1] if not base.empty else None
+
+    meta = INDICATOR_META[ind]
+    color = status_color(val, ind)
+    label = status_label(val, ind)
+
+    delta_html = ""
+    if baseline is not None:
+        delta = val - baseline[ind]
+        direction = THRESHOLDS.get(ind, (None, None, "lower_is_better"))[2]
+        flat = abs(delta) < 1e-9
+        improved = delta < 0 if direction == "lower_is_better" else delta > 0
+        dcolor = NEUTRAL if flat else (SAFE if improved else DANGER)
+        arrow = "&#8211;" if flat else ("&#9650;" if delta > 0 else "&#9660;")
+        suffix = {"%": "pts", "million": "M"}.get(meta["unit"], f' {meta["unit"]}')
+        delta_html = (
+            f'<span style="font-size:0.74rem;font-weight:600;color:{dcolor};margin-left:8px;">'
+            f'{arrow} {abs(delta):,.1f} {suffix} vs {int(baseline["Year"])}</span>'
+        )
+
+    return f"""
+    <div title="{meta['tip']}" style="border:1px solid #262730;border-left:4px solid {color};
+         border-radius:8px;background:#17181f;padding:14px 16px;min-height:132px;">
+      <div style="font-size:0.82rem;color:#9ca3af;margin-bottom:4px;">{meta['label']}</div>
+      <div style="font-size:1.7rem;font-weight:700;color:{color};line-height:1.15;">
+        {val:,.1f} <span style="font-size:0.85rem;color:#9ca3af;font-weight:400;">{meta['unit']}</span>
+      </div>
+      <div style="margin-top:8px;">
+        <span style="background:{color}22;color:{color};padding:2px 10px;border-radius:10px;
+             font-size:0.74rem;font-weight:600;">{label.upper()}</span>
+        {delta_html}
+      </div>
+      <div style="margin-top:6px;font-size:0.72rem;color:#6b7280;">{year} · FAOSTAT latest</div>
+    </div>
+    """
+
+
+def kpi_section(analysis_df):
+    st.subheader("Key Indicators at a Glance")
+    groups = [
+        ("", [
+            "dietary_energy_adequacy_pct",
+            "moderate_or_severe_food_insecurity_pct",
+            "healthy_diet_unaffordable_pct",
+        ], ""),
+        ("", [
+            "undernourishment_pct",
+            "undernourished_people_million",
+            "under5_stunting_pct",
+        ], None),
     ]
-    cols = st.columns(3)
-    for idx, (ind, title) in enumerate(key_indicators):
-        row = analysis_df.dropna(subset=[ind]).sort_values("Year").tail(1)
-        if row.empty:
-            continue
-        val = row[ind].iloc[0]
-        year = int(row["Year"].iloc[0])
-        status = status_label(val, ind)
-        unit = INDICATOR_META[ind]["unit"]
-        with cols[idx % 3]:
-            st.markdown(f"**{title}**")
-            st.markdown(f"### {val:.1f} {unit}")
-            st.markdown(f"{status} · {year}")
+
+    for group_title, indicators, question in groups:
+        st.markdown(f"**{group_title}**")
+        cols = st.columns(len(indicators))
+        for col, ind in zip(cols, indicators):
+            card = _kpi_card_html(analysis_df, ind)
+            with col:
+                if card:
+                    st.markdown(card, unsafe_allow_html=True)
+                else:
+                    st.caption("No data available.")
+        if question:
+            st.markdown(f"> {question}")
 
 
 def executive_summary(analysis_df, county_risk_summary, latest_alert_date):
@@ -146,8 +196,8 @@ def executive_summary(analysis_df, county_risk_summary, latest_alert_date):
                 "yellow = warning, and red = critical. Follow the tabs in order and you will move from the national "
                 "picture down to the counties that need help most.")
 
-    metric_cards(analysis_df)
-    st.markdown("> **Q3:** Is healthy diet affordability improving or worsening?")
+    st.markdown("---")
+    kpi_section(analysis_df)
 
     st.markdown("---")
     st.subheader("The Big Picture: Two Decades of Food Security")
