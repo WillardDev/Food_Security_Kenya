@@ -147,9 +147,11 @@ def executive_summary(analysis_df, county_risk_summary, latest_alert_date):
                 "picture down to the counties that need help most.")
 
     metric_cards(analysis_df)
+    st.markdown("> **Q3:** Is healthy diet affordability improving or worsening?")
 
     st.markdown("---")
     st.subheader("The Big Picture: Two Decades of Food Security")
+    st.markdown("> **Q1:** What national food-security and healthy-diet trends are visible in the data?")
     st.markdown("These three lines tell the core story of Kenya's food security: dietary energy supply has stayed "
                 "flat, undernourishment has stubbornly persisted, and child stunting has slowly declined. The gap "
                 "between energy adequacy (which is high) and undernourishment (which is also high) is the heart "
@@ -159,6 +161,7 @@ def executive_summary(analysis_df, county_risk_summary, latest_alert_date):
 
     st.markdown("---")
     st.subheader("Correlation: GDP per Capita vs Food Insecurity")
+    st.markdown("> **Q2:** Does economic growth reduce food insecurity?")
     st.markdown("This scatter plot explores whether economic growth (GDP per capita) is associated with lower food "
                 "insecurity. Each point represents one year. If growth helped, we would see a downward trend "
                 "(higher GDP = lower insecurity). Hover over points for details.")
@@ -167,6 +170,7 @@ def executive_summary(analysis_df, county_risk_summary, latest_alert_date):
 
     st.markdown("---")
     st.subheader("The Crisis on a Map of Counties")
+    st.markdown("> **Q5:** Which counties are at the highest risk and why?")
     st.markdown("National averages hide the geography of hunger. Here is the same story told county by county: "
                 "which parts of Kenya are most affected, and which are least.")
 
@@ -197,6 +201,7 @@ def act1_availability(analysis_df):
                 "disruptions.")
 
     st.subheader("Dietary Energy Supply Adequacy")
+    st.markdown("> **Q1:** What national food-security and healthy-diet trends are visible in the data?")
     st.markdown("This is the percentage of the population daily calorie needs that are met by the domestic food "
                 "supply. A value of 100% means supply exactly meets demand. Below 100% means Kenya relies on imports "
                 "or aid.")
@@ -204,6 +209,7 @@ def act1_availability(analysis_df):
     st.markdown(plots.energy_adequacy_insight(analysis_df))
 
     st.subheader("Food Supply Breakdown (per person per day)")
+    st.markdown("> **Q1:** What national food-security and healthy-diet trends are visible in the data?")
     st.markdown("These three metrics show the actual nutritional content available per Kenyan per day. Recommended "
                 "minimums: **2,100 kcal**, **50 g protein**, **40 g fat**.")
     st.plotly_chart(plots.supply_breakdown_chart(analysis_df), use_container_width=True, key="chart_supply_breakdown")
@@ -226,6 +232,7 @@ def act2_access_nutrition(analysis_df, county_stats):
                 "insecure. The problem is not scarcity, it is poverty and affordability.")
 
     st.subheader("Prevalence of Undernourishment")
+    st.markdown("> **Q4:** What is the human cost, especially for children?")
     st.markdown("The percentage of the Kenyan population that consistently fails to meet their daily calorie "
                 "requirements. WHO thresholds: below 15% = acceptable, 15-25% = warning, above 25% = critical.")
     st.plotly_chart(plots.undernourishment_chart(analysis_df), use_container_width=True, key="chart_undernourishment")
@@ -233,6 +240,7 @@ def act2_access_nutrition(analysis_df, county_stats):
 
     st.markdown("---")
     st.subheader("Child Nutrition - The Human Cost")
+    st.markdown("> **Q4:** What is the human cost, especially for children?")
     st.markdown("Food insecurity is not just a line on a chart - it is stunted children whose bodies and brains "
                 "will never fully recover. This section shows the human cost that makes the affordability crisis urgent.")
     st.markdown("**What this measures:** The impact of food insecurity on children under 5. **Stunting** (too short "
@@ -247,6 +255,7 @@ def act2_access_nutrition(analysis_df, county_stats):
     st.markdown(plots.child_nutrition_insight(analysis_df))
 
     st.markdown("### Child Malnutrition by County")
+    st.markdown("> **Q4:** What is the human cost, especially for children?")
     st.markdown("National trends hide the counties that are struggling. Select an indicator below - every county "
                 "gets its own bar, and the insight updates to match your selection. Counties are ranked from worst "
                 "to best using DHS 2022 data.")
@@ -285,6 +294,7 @@ def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stat
                 f"prices. **Latest data: {latest_alert_date.date()}**.")
 
     st.markdown("#### County Risk Choropleth Maps")
+    st.markdown("> **Q5:** Which counties are at the highest risk and why?")
     st.markdown("These maps show the food-security risk level for each of Kenya's 47 counties. Darker red indicates "
                 "higher risk. Hover over a county for its name and risk level.")
     map_choice = st.selectbox(
@@ -297,6 +307,7 @@ def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stat
     st.markdown(plots.county_map_insight(county_risk_summary, latest_alert_date))
 
     st.markdown("#### County Risk Ranking")
+    st.markdown("> **Q5:** Which counties are at the highest risk and why?")
     st.markdown("Alert levels: **Typical** (0) | **Heightened** (1) | **Critical** (2)")
 
     col1, col2 = st.columns([2, 1])
@@ -319,6 +330,7 @@ def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stat
             st.markdown(f"- **{row['adm1_name']}** - {row['overall_alert_label']}")
 
     st.markdown("#### County x Indicator Heatmap")
+    st.markdown("> **Q5:** Which counties are at the highest risk and why?")
     st.markdown("This heatmap shows the maximum alert level for each county across all JMR indicators. Red means at "
                 "least one sub-county in that county reached the critical level for that indicator.")
     latest_for_heatmap = county_alerts[county_alerts["date"] == latest_alert_date].copy()
@@ -336,6 +348,7 @@ def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stat
 
     st.markdown("---")
     st.subheader("County Comparisons - Poverty by County")
+    st.markdown("> **Q6:** Do the risk alerts match what is actually measured in each county?")
     st.markdown("This section merges externally measured county poverty data with the JMR risk alerts so counties "
                 "can be compared directly - no national averages, one bar per county. Poverty is the underlying "
                 "driver that makes food unaffordable even when it is available.")
@@ -361,6 +374,7 @@ def act3_counties(county_alerts, county_risk_summary, county_geo_df, county_stat
     st.markdown(plots.county_indicator_insight(county_stats, pov_indicator))
 
     st.markdown("#### Share of Population in Acute Food Insecurity by County")
+    st.markdown("> **Q6:** Do the risk alerts match what is actually measured in each county?")
     st.markdown("The IPC analysis measures the share of each county's population in Phase 3+ (crisis) - the people "
                 "who need help right now. Percentages make counties of very different sizes directly comparable.")
     st.plotly_chart(plots.county_crisis_chart(county_stats, top_n=pov_top_n), use_container_width=True,
